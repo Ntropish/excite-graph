@@ -1,153 +1,136 @@
 import React, { useState } from "react";
 import {
   Box,
-  CssBaseline,
   Drawer,
   IconButton,
   Toolbar,
   AppBar,
   Typography,
 } from "@mui/material";
-import { ChevronLeft, ChevronRight } from "@mui/icons-material";
+
+import { useTheme } from "@mui/material";
+
+import MenuIcon from "@mui/icons-material/Menu";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Resizable } from "re-resizable";
-import "react-resizable/css/styles.css";
+
+import GraphInspector from "./GraphInspector";
+import GraphList from "./GraphList";
+import DrawerHeader from "./DrawerHeader";
 
 const drawerWidth = 240;
 
 const App = () => {
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [leftWidth, setLeftWidth] = useState("33.33%");
-  const [centerWidth, setCenterWidth] = useState("33.33%");
-  const [rightWidth, setRightWidth] = useState("33.34%");
+  const [leftDrawerOpen, setLeftDrawerOpen] = React.useState(false);
+  const [rightDrawerOpen, setRightDrawerOpen] = React.useState(false);
 
-  console.log("hi");
+  const theme = useTheme();
 
-  const toggleDrawer = () => {
-    setDrawerOpen(!drawerOpen);
+  const toggleLeftDrawer = (open) => () => {
+    setLeftDrawerOpen(open);
   };
 
-  const handleResizeLeft = (e, direction, ref, d) => {
-    const newLeftWidth = (ref.offsetWidth / window.innerWidth) * 100;
-    const newCenterWidth = 100 - newLeftWidth - parseFloat(rightWidth);
-
-    // log event
-    console.log(e);
-    console.log(direction);
-    console.log(ref);
-    console.log(d);
-
-    setLeftWidth(`${newLeftWidth}%`);
-    setCenterWidth(`${newCenterWidth}%`);
+  const toggleRightDrawer = (open) => () => {
+    setRightDrawerOpen(open);
   };
 
-  const handleResizeCenter = (e, direction, ref, d) => {
-    const newCenterWidth = (ref.offsetWidth / window.innerWidth) * 100;
-    const newRightWidth = 100 - parseFloat(leftWidth) - newCenterWidth;
-
-    setCenterWidth(`${newCenterWidth}%`);
-    setRightWidth(`${newRightWidth}%`);
+  const handleRightDrawerClose = () => {
+    setRightDrawerOpen(false);
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        height: "100vh",
-        width: drawerOpen ? "100%" : "100vw",
-      }}
-    >
-      <CssBaseline />
-      <AppBar
-        position="fixed"
-        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
-      >
+    <Box sx={{ display: "flex", height: "100vh", flexDirection: "column" }}>
+      <AppBar position="static">
         <Toolbar>
-          <Typography variant="h6" noWrap component="div">
-            MUI Resizable Layout
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            onClick={toggleLeftDrawer(true)}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            My Application
           </Typography>
           <IconButton
-            color="inherit"
             edge="end"
-            onClick={toggleDrawer}
-            sx={{ marginLeft: "auto" }}
+            color="inherit"
+            aria-label="menu"
+            onClick={toggleRightDrawer(true)}
           >
-            {drawerOpen ? <ChevronLeft /> : <ChevronRight />}
+            <MenuIcon />
           </IconButton>
         </Toolbar>
       </AppBar>
-      <Drawer variant="persistent" anchor="left" open={drawerOpen}>
-        <Toolbar />
-        <Box sx={{ p: 2 }}>
-          <Typography variant="h6">Drawer Content</Typography>
-          <Typography>Additional content can go here.</Typography>
-        </Box>
+      <Drawer
+        anchor="left"
+        open={leftDrawerOpen}
+        onClose={toggleLeftDrawer(false)}
+      >
+        <GraphList />
+      </Drawer>
+      <Drawer
+        sx={{
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+            boxSizing: "border-box",
+          },
+        }}
+        variant="persistent"
+        anchor="right"
+        open={rightDrawerOpen}
+        onClose={toggleRightDrawer(false)}
+      >
+        <DrawerHeader>
+          <IconButton onClick={handleRightDrawerClose}>
+            {theme.direction === "rtl" ? (
+              <ChevronLeftIcon />
+            ) : (
+              <ChevronRightIcon />
+            )}
+          </IconButton>
+        </DrawerHeader>
+        <GraphInspector />
       </Drawer>
       <Box
-        component="main"
         sx={{
           display: "flex",
-          flexGrow: 1,
-          flexDirection: "column",
-          marginLeft: drawerOpen ? `${drawerWidth}px` : 0,
-          transition: "margin 0.3s",
+          flex: 1,
+          width: rightDrawerOpen ? `calc(100% - ${drawerWidth}px)` : "100%",
+          transition: theme.transitions.create(["width"], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+          }),
         }}
       >
-        <Toolbar />
-        <Box sx={{ display: "flex", flexGrow: 1, height: "100%" }}>
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "row",
+            height: "100%",
+            overflow: "hidden",
+          }}
+        >
           <Resizable
-            size={{ width: leftWidth, height: "100%" }}
-            minWidth="10%"
-            maxWidth="80%"
-            enable={{ right: true }}
-            onResizeStop={handleResizeLeft}
+            defaultSize={{ width: "100%", height: "50%" }}
+            enable={{ bottom: true }}
+            minHeight={"10%"}
+            maxHeight={"90%"}
             style={{
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "#f0f0f0",
-              borderRight: "1px solid #ddd",
+              flexDirection: "column",
+              backgroundColor: "red",
             }}
           >
-            <Box
-              sx={{ textAlign: "center", fontSize: "4rem", userSelect: "none" }}
-            >
-              ◀
+            <Box sx={{ height: "100%", bgcolor: "background.paper" }}>
+              {/* Left pane content */}
             </Box>
           </Resizable>
-          <Resizable
-            size={{ width: centerWidth, height: "100%" }}
-            minWidth="10%"
-            maxWidth="80%"
-            enable={{ right: true }}
-            onResizeStop={handleResizeCenter}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "#f0f0f0",
-              borderRight: "1px solid #ddd",
-            }}
-          >
-            <Box
-              sx={{ textAlign: "center", fontSize: "4rem", userSelect: "none" }}
-            >
-              ▲
-            </Box>
-          </Resizable>
-          <Box
-            sx={{
-              width: rightWidth,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              height: "100%",
-              backgroundColor: "#f0f0f0",
-              textAlign: "center",
-              fontSize: "4rem",
-              userSelect: "none",
-            }}
-          >
-            ▶
+          <Box sx={{ flex: 1, bgcolor: "background.paper" }}>
+            {/* Right pane content */}
           </Box>
         </Box>
       </Box>

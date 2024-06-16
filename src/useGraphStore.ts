@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 interface NodePayload {
   x: number;
@@ -25,30 +25,38 @@ interface Graph {
   edges: {
     [startNodeId: number]: Edges;
   };
+  viewBox: string;
 }
 
 interface GraphState {
-  graphs: Graph[];
+  graphs: { [id: string]: Graph }; // Store graphs in a dictionary with their id as the key
   addGraph: (graph: Graph) => void;
   removeGraph: (id: string) => void;
+  listGraphs: () => Graph[]; // Function to list all graphs
 }
 
 export const useGraphStore = create<GraphState>()(
   persist(
-    (set) => ({
-      graphs: [],
+    (set, get) => ({
+      graphs: {},
       addGraph: (graph) =>
         set((state) => ({
-          graphs: [...state.graphs, graph],
+          graphs: {
+            ...state.graphs,
+            [graph.id]: graph, // Add or update graph by id
+          },
         })),
       removeGraph: (id) =>
-        set((state) => ({
-          graphs: state.graphs.filter((graph) => graph.id !== id),
-        })),
+        set((state) => {
+          const newGraphs = { ...state.graphs };
+          delete newGraphs[id]; // Remove graph by id
+          return { graphs: newGraphs };
+        }),
+      listGraphs: () => Object.values(get().graphs), // Return all graphs as an array
     }),
     {
       name: "graphs-storage", // Name of the item in the storage (must be unique)
-      getStorage: () => localStorage, // (optional) by default, 'localStorage' is used
+      storage: createJSONStorage(() => localStorage), // Use localStorage as the storage
     }
   )
 );

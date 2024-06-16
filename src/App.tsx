@@ -19,6 +19,8 @@ import GraphInspector from "./GraphInspector";
 import GraphList from "./GraphList";
 import DrawerHeader from "./DrawerHeader";
 
+import Graph from "./Graph";
+
 const drawerWidth = 240;
 
 const App = () => {
@@ -109,7 +111,8 @@ const App = () => {
           sx={{
             flex: 1,
             display: "flex",
-            flexDirection: "row",
+            flexDirection: "column",
+
             height: "100%",
             overflow: "hidden",
           }}
@@ -126,11 +129,18 @@ const App = () => {
             }}
           >
             <Box sx={{ height: "100%", bgcolor: "background.paper" }}>
-              {/* Left pane content */}
+              {/* Graph content */}
+              <Graph>
+                <rect x="10" y="10" width="5" height="5" fill="blue" />
+                <rect x="90" y="10" width="5" height="5" fill="blue" />
+                <rect x="10" y="90" width="5" height="5" fill="blue" />
+                <rect x="90" y="90" width="5" height="5" fill="blue" />
+              </Graph>
             </Box>
           </Resizable>
           <Box sx={{ flex: 1, bgcolor: "background.paper" }}>
-            {/* Right pane content */}
+            {/* Timeline content */}
+            Timeline
           </Box>
         </Box>
       </Box>

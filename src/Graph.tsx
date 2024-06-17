@@ -126,14 +126,7 @@ const Graph: React.FC<InteractiveSVGProps> = ({ children }) => {
         height={height || 1}
         viewBoxRect={viewBoxRect}
       />
-      {isPanning ? (
-        <circle
-          cx={startPointRef.current?.x}
-          cy={startPointRef.current?.y}
-          r={4}
-          fill="red"
-        />
-      ) : null}
+
       {children}
     </svg>
   );

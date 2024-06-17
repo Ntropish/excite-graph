@@ -22,6 +22,7 @@ function GraphList() {
       id: "graph-" + Math.random().toString(36).substr(2, 9),
       nodes: [],
       edges: {},
+      viewBox: "0 0 100 100",
     });
   };
 

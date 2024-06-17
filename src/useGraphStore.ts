@@ -29,30 +29,38 @@ interface Graph {
 }
 
 interface GraphState {
-  graphs: { [id: string]: Graph }; // Store graphs in a dictionary with their id as the key
+  graphMap: { [id: string]: Graph }; // Store graphs in a dictionary with their id as the key
+  graphs: Graph[]; // Derived list of all graphs
   addGraph: (graph: Graph) => void;
   removeGraph: (id: string) => void;
-  listGraphs: () => Graph[]; // Function to list all graphs
 }
 
 export const useGraphStore = create<GraphState>()(
   persist(
     (set, get) => ({
-      graphs: {},
-      addGraph: (graph) =>
-        set((state) => ({
-          graphs: {
-            ...state.graphs,
+      graphMap: {},
+      graphs: [],
+      addGraph: (graph) => {
+        set((state) => {
+          const newGraphMap = {
+            ...state.graphMap,
             [graph.id]: graph, // Add or update graph by id
-          },
-        })),
+          };
+          return {
+            graphMap: newGraphMap,
+            graphs: Object.values(newGraphMap), // Automatically update the list of graphs
+          };
+        });
+      },
       removeGraph: (id) =>
         set((state) => {
-          const newGraphs = { ...state.graphs };
-          delete newGraphs[id]; // Remove graph by id
-          return { graphs: newGraphs };
+          const newGraphMap = { ...state.graphMap };
+          delete newGraphMap[id]; // Remove graph by id
+          return {
+            graphMap: newGraphMap,
+            graphs: Object.values(newGraphMap), // Automatically update the list of graphs
+          };
         }),
-      listGraphs: () => Object.values(get().graphs), // Return all graphs as an array
     }),
     {
       name: "graphs-storage", // Name of the item in the storage (must be unique)

@@ -133,7 +133,7 @@ const App = () => {
             >
               {/* Graph content */}
               <Graph>
-                <rect x="10" y="10" width="5" height="5" fill="blue" />
+                <rect x="10" y="10" width="50" height="5" fill="blue" />
                 <rect x="90" y="10" width="5" height="5" fill="blue" />
                 <rect x="10" y="90" width="5" height="5" fill="blue" />
                 <rect x="90" y="90" width="5" height="5" fill="blue" />

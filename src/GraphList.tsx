@@ -7,7 +7,7 @@ import {
   MaterialReactTable,
   useMaterialReactTable,
 } from "material-react-table";
-import { useGraphStore } from "./useGraphStore";
+import { useGraphStore } from "./stores/useGraphStore";
 
 import { useNavigate } from "react-router-dom";
 

@@ -33,6 +33,7 @@ interface GraphState {
   graphs: Graph[]; // Derived list of all graphs
   addGraph: (graph: Graph) => void;
   removeGraph: (id: string) => void;
+  updateGraph: (id: string, graph: Graph) => void;
 }
 
 export const useGraphStore = create<GraphState>()(
@@ -56,6 +57,17 @@ export const useGraphStore = create<GraphState>()(
         set((state) => {
           const newGraphMap = { ...state.graphMap };
           delete newGraphMap[id]; // Remove graph by id
+          return {
+            graphMap: newGraphMap,
+            graphs: Object.values(newGraphMap), // Automatically update the list of graphs
+          };
+        }),
+      updateGraph: (id, graph) =>
+        set((state) => {
+          const newGraphMap = {
+            ...state.graphMap,
+            [id]: graph, // Add or update graph by id
+          };
           return {
             graphMap: newGraphMap,
             graphs: Object.values(newGraphMap), // Automatically update the list of graphs

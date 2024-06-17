@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import useViewBox from "./useViewBox"; // Import the hook we created earlier
 
-import { useGraphStore } from "./useGraphStore";
+import { useGraphStore } from "./stores/useGraphStore";
 
 import useResizeObserver from "use-resize-observer";
 

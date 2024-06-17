@@ -128,7 +128,9 @@ const App = () => {
               backgroundColor: "red",
             }}
           >
-            <Box sx={{ height: "100%", bgcolor: "background.paper" }}>
+            <Box
+              sx={{ height: "100%", bgcolor: "background.paper", minHeight: 0 }}
+            >
               {/* Graph content */}
               <Graph>
                 <rect x="10" y="10" width="5" height="5" fill="blue" />

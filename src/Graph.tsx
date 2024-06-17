@@ -14,6 +14,8 @@ import useResizeObserver from "use-resize-observer";
 
 import GridLines from "./GridLines";
 
+import scaleRect from "./util/scaleRect";
+
 type InteractiveSVGProps = {
   children: React.ReactNode;
 };
@@ -22,21 +24,25 @@ const Graph: React.FC<InteractiveSVGProps> = ({ children }) => {
   const { viewBox, setViewBox, viewBoxRect, setHeight } =
     useViewBox(`0 0 100 100`);
 
-  const { ref: resizeRef, width, height } = useResizeObserver<SVGSVGElement>();
+  const [screenRect, setScreenRect] = useState<DOMRect | null>(null);
 
-  const aspectRatio = useMemo(() => {
-    return (width || 1) / (height || 1);
-  }, [width, height]);
+  const { ref: resizeRef } = useResizeObserver<SVGSVGElement>({
+    onResize: ({ width, height }) => {
+      if (!width || !height) return;
 
-  useEffect(() => {
-    const viewBoxAspectRatio = viewBoxRect.width / viewBoxRect.height;
+      const screenRect = new DOMRect(0, 0, width, height);
 
-    if (aspectRatio !== viewBoxAspectRatio && width) {
+      setScreenRect(screenRect);
+
+      const aspectRatio = (width || 1) / (height || 1);
+
       const newHeight = viewBoxRect.width / aspectRatio;
 
-      setHeight(newHeight);
-    }
-  }, [aspectRatio, viewBoxRect, width, setHeight]);
+      if (viewBoxRect.height !== newHeight) {
+        setHeight(newHeight);
+      }
+    },
+  });
 
   const [isPanning, setIsPanning] = useState(false);
   const startPointRef = useRef<DOMPoint | null>(null);
@@ -48,21 +54,13 @@ const Graph: React.FC<InteractiveSVGProps> = ({ children }) => {
     if (!svgRef.current) return;
 
     const { deltaX, deltaY, clientX, clientY } = event;
-    const scale = Math.pow(1.0015, -deltaY);
+    const scale = Math.pow(1.0015, deltaY);
 
-    const rect = svgRef.current.getBoundingClientRect();
-    const svgPointBefore = convertToPoint(
-      clientX - rect.left,
-      clientY - rect.top
-    );
+    const rect = viewBoxRect;
 
-    setViewBox((prev) => {
-      const newX = svgPointBefore.x - (svgPointBefore.x - prev.x) * scale;
-      const newY = svgPointBefore.y - (svgPointBefore.y - prev.y) * scale;
-      const newWidth = prev.width * scale;
-      const newHeight = prev.height * scale;
-      return `${newX} ${newY} ${newWidth} ${newHeight}`;
-    });
+    const newViewBox = scaleRect(rect, scale, convertToPoint(clientX, clientY));
+
+    setViewBox(newViewBox);
   };
 
   const onMouseDown = (event: MouseEvent<SVGSVGElement>) => {
@@ -73,8 +71,8 @@ const Graph: React.FC<InteractiveSVGProps> = ({ children }) => {
 
   const onMouseMove = (event: MouseEvent<SVGSVGElement>) => {
     if (isPanning && viewRectRef.current && svgRef.current) {
-      const scaleX = viewRectRef.current.width / (width || 1);
-      const scaleY = viewRectRef.current.height / (height || 1);
+      const scaleX = viewRectRef.current.width / (screenRect?.width || 1);
+      const scaleY = viewRectRef.current.height / (screenRect?.height || 1);
 
       const dx = event.movementX;
       const dy = event.movementY;
@@ -106,8 +104,8 @@ const Graph: React.FC<InteractiveSVGProps> = ({ children }) => {
         svgRef.current = node!;
         resizeRef(node!);
       }}
-      width={width}
-      height={height}
+      width={screenRect?.width || 1}
+      height={screenRect?.height || 1}
       viewBox={viewBox}
       onWheel={onWheel}
       onMouseDown={onMouseDown}
@@ -122,8 +120,8 @@ const Graph: React.FC<InteractiveSVGProps> = ({ children }) => {
       preserveAspectRatio="none"
     >
       <GridLines
-        width={width || 1}
-        height={height || 1}
+        width={screenRect?.width || 1}
+        height={screenRect?.height || 1}
         viewBoxRect={viewBoxRect}
       />
 

@@ -114,7 +114,23 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
     mouseY: null | number;
   }>({ mouseX: null, mouseY: null });
 
+  const [contextMenuTarget, setContextMenuTarget] = useState<Element | null>(
+    null
+  );
+
   const handleContextMenu = useCallback((event: MouseEvent<SVGSVGElement>) => {
+    console.log(event.target);
+
+    const target = event.target as Element;
+
+    const closestPoint = target.closest("[data-entity='point']");
+
+    if (closestPoint) {
+      setContextMenuTarget(closestPoint);
+    } else {
+      setContextMenuTarget(null);
+    }
+
     event.preventDefault();
     setContextMenu({
       mouseX: event.clientX - 2, // Subtracting 2 pixels to align the menu properly
@@ -127,14 +143,10 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
   };
 
   const addNode = () => {
-    console.log("Add Node");
-
     if (!activeGraph) return;
     if (!graphId) return;
 
     const point = convertToPoint(contextMenu.mouseX!, contextMenu.mouseY!);
-
-    console.log(point.x, point.y);
 
     const newNode: GraphNode = {
       x: point.x,
@@ -152,20 +164,48 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
     handleClose();
   };
 
+  const deleteNode = () => {
+    if (!activeGraph) return;
+    if (!graphId) return;
+
+    const deleteIndex = parseInt(
+      contextMenuTarget?.getAttribute("data-id") || "-1"
+    );
+
+    const newNodes = activeGraph.nodes.filter(
+      (_, index) => index !== deleteIndex
+    );
+
+    const newGraph: Graph = {
+      ...activeGraph!,
+      nodes: newNodes,
+    };
+
+    useGraphListStore.getState().updateGraph(graphId, newGraph);
+    handleClose();
+  };
+
   const focusContent = () => {
     console.log("Focus Content");
     handleClose();
   };
 
-  const points = activeGraph?.nodes.map((node) => (
-    <circle key={node.x + node.y} cx={node.x} cy={node.y} r={10} fill="red" />
+  const points = activeGraph?.nodes.map((node, index) => (
+    <circle
+      data-entity="point"
+      data-id={index}
+      key={index}
+      cx={node.x}
+      cy={node.y}
+      r={10}
+      fill="red"
+    />
   ));
 
   console.log(points);
 
   return (
     <>
-      {" "}
       <svg
         ref={(node) => {
           svgRef.current = node!;
@@ -206,8 +246,14 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
             : undefined
         }
       >
-        <MenuItem onClick={addNode}>Add Node</MenuItem>
-        <MenuItem onClick={focusContent}>Focus Content</MenuItem>
+        {contextMenuTarget && (
+          <MenuItem onClick={deleteNode}>Delete Node</MenuItem>
+        )}
+
+        {!contextMenuTarget && <MenuItem onClick={addNode}>Add Node</MenuItem>}
+        {!contextMenuTarget && (
+          <MenuItem onClick={focusContent}>Focus Content</MenuItem>
+        )}
       </Menu>
     </>
   );

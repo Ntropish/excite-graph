@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 interface SelectionState {
+  activeGraph: string | null;
+  setActiveGraph: (id: string | null) => void;
   selectedNodes: number[];
   setSelectedNodes: (nodes: number[]) => void;
   addSelectedNode: (node: number) => void;
@@ -17,6 +19,8 @@ interface SelectionState {
 export const useSelectionStore = create<SelectionState>()(
   persist(
     (set, get) => ({
+      activeGraph: null,
+      setActiveGraph: (id) => set({ activeGraph: id }),
       selectedNodes: [],
       setSelectedNodes: (nodes) => set({ selectedNodes: nodes }),
       addSelectedNode: (node) =>

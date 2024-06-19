@@ -7,14 +7,14 @@ import {
   MaterialReactTable,
   useMaterialReactTable,
 } from "material-react-table";
-import { useGraphStore } from "./stores/useGraphStore";
+import { useGraphListStore } from "./stores/useGraphListStore";
 
 import { useNavigate } from "react-router-dom";
 
 function GraphList() {
-  const graphs = useGraphStore((state) => state.graphs);
-  const removeGraph = useGraphStore((state) => state.removeGraph);
-  const addGraph = useGraphStore((state) => state.addGraph);
+  const graphs = useGraphListStore((state) => state.graphs);
+  const removeGraph = useGraphListStore((state) => state.removeGraph);
+  const addGraph = useGraphListStore((state) => state.addGraph);
   const navigate = useNavigate();
 
   const handleAddGraphButtonClick = () => {

@@ -1,14 +1,9 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-interface NodePayload {
+export interface GraphNode {
   x: number;
   y: number;
-}
-
-interface Node {
-  id: number;
-  payload: NodePayload;
 }
 
 interface EdgePayload {
@@ -19,16 +14,16 @@ interface Edges {
   [targetNodeId: number]: EdgePayload;
 }
 
-interface Graph {
+export interface Graph {
   id: string;
-  nodes: Node[];
+  nodes: GraphNode[];
   edges: {
     [startNodeId: number]: Edges;
   };
   viewBox: string;
 }
 
-interface GraphState {
+interface GraphListState {
   graphMap: { [id: string]: Graph }; // Store graphs in a dictionary with their id as the key
   graphs: Graph[]; // Derived list of all graphs
   addGraph: (graph: Graph) => void;
@@ -36,7 +31,7 @@ interface GraphState {
   updateGraph: (id: string, graph: Graph) => void;
 }
 
-export const useGraphStore = create<GraphState>()(
+export const useGraphListStore = create<GraphListState>()(
   persist(
     (set, get) => ({
       graphMap: {},
@@ -75,7 +70,7 @@ export const useGraphStore = create<GraphState>()(
         }),
     }),
     {
-      name: "graphs-storage", // Name of the item in the storage (must be unique)
+      name: "graph-list-storage", // Name of the item in the storage (must be unique)
       storage: createJSONStorage(() => localStorage), // Use localStorage as the storage
     }
   )

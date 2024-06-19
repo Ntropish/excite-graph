@@ -1,41 +1,27 @@
 import { create } from "zustand";
 
-interface SelectionState {
-  selectedNodes: number[];
-  setSelectedNodes: (nodes: number[]) => void;
-  addSelectedNode: (node: number) => void;
-  removeSelectedNode: (node: number) => void;
-  clearSelectedNodes: () => void;
-  selectedEdges: [number, number][];
-  setSelectedEdges: (edges: [number, number][]) => void;
-  addSelectedEdge: (edge: [number, number]) => void;
-  removeSelectedEdge: (edge: [number, number]) => void;
-  clearSelectedEdges: () => void;
+import { useGraphListStore } from "./useGraphListStore";
+
+interface AddNodeState {
+  active: boolean;
+  location: DOMPoint | null;
+  startAddingNode: (location: DOMPoint) => void;
+  cancelAddingNode: () => void;
+  updateLocation: (location: DOMPoint) => void;
+  confirmAddingNode: (location?: DOMPoint) => void;
 }
 
-export const useSelectionStore = create<SelectionState>()((set, get) => ({
-  selectedNodes: [],
-  setSelectedNodes: (nodes) => set({ selectedNodes: nodes }),
-  addSelectedNode: (node) =>
-    set((state) => ({
-      selectedNodes: [...state.selectedNodes, node],
-    })),
-  removeSelectedNode: (node) =>
-    set((state) => ({
-      selectedNodes: state.selectedNodes.filter((n) => n !== node),
-    })),
-  clearSelectedNodes: () => set({ selectedNodes: [] }),
-  selectedEdges: [],
-  setSelectedEdges: (edges) => set({ selectedEdges: edges }),
-  addSelectedEdge: (edge) =>
-    set((state) => ({
-      selectedEdges: [...state.selectedEdges, edge],
-    })),
-  removeSelectedEdge: (edge) =>
-    set((state) => ({
-      selectedEdges: state.selectedEdges.filter(
-        (e) => e[0] !== edge[0] || e[1] !== edge[1]
-      ),
-    })),
-  clearSelectedEdges: () => set({ selectedEdges: [] }),
+export const useAddNodeStore = create<AddNodeState>()((set, get) => ({
+  active: false,
+  location: null,
+  startAddingNode: (location) => set({ active: true, location }),
+  cancelAddingNode: () => set({ active: false, location: null }),
+  updateLocation: (location) => set({ location }),
+  confirmAddingNode: (location) => {
+    if (location) {
+      set({ active: false, location });
+    } else if (get().location) {
+      set({ active: false, location: get().location });
+    }
+  },
 }));

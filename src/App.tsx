@@ -15,11 +15,11 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Resizable } from "re-resizable";
 
-import GraphInspector from "./GraphInspector";
+import GraphInspector from "./routes/graph/GraphInspector";
 import GraphList from "./GraphList";
-import DrawerHeader from "./DrawerHeader";
-
-import Graph from "./Graph";
+import DrawerHeader from "./components/DrawerHeader";
+import { Route, Routes } from "react-router-dom";
+import Graph from "./routes/graph";
 
 const drawerWidth = 240;
 
@@ -54,16 +54,8 @@ const App = () => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            My Application
+            Excitable Graph
           </Typography>
-          <IconButton
-            edge="end"
-            color="inherit"
-            aria-label="menu"
-            onClick={toggleRightDrawer(true)}
-          >
-            <MenuIcon />
-          </IconButton>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -100,11 +92,6 @@ const App = () => {
         sx={{
           display: "flex",
           flex: 1,
-          width: rightDrawerOpen ? `calc(100% - ${drawerWidth}px)` : "100%",
-          transition: theme.transitions.create(["width"], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
-          }),
         }}
       >
         <Box
@@ -117,33 +104,9 @@ const App = () => {
             overflow: "hidden",
           }}
         >
-          <Resizable
-            defaultSize={{ width: "100%", height: "50%" }}
-            enable={{ bottom: true }}
-            minHeight={"10%"}
-            maxHeight={"90%"}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              backgroundColor: "red",
-            }}
-          >
-            <Box
-              sx={{ height: "100%", bgcolor: "background.paper", minHeight: 0 }}
-            >
-              {/* Graph content */}
-              <Graph>
-                <rect x="10" y="10" width="50" height="5" fill="blue" />
-                <rect x="90" y="10" width="5" height="5" fill="blue" />
-                <rect x="10" y="90" width="5" height="5" fill="blue" />
-                <rect x="90" y="90" width="5" height="5" fill="blue" />
-              </Graph>
-            </Box>
-          </Resizable>
-          <Box sx={{ flex: 1, bgcolor: "background.paper" }}>
-            {/* Timeline content */}
-            Timeline
-          </Box>
+          <Routes>
+            <Route path="/graph/:graphId" element={<Graph />} />
+          </Routes>
         </Box>
       </Box>
     </Box>

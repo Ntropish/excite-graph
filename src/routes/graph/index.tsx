@@ -1,27 +1,9 @@
 import React, { useState } from "react";
-import {
-  Box,
-  Drawer,
-  IconButton,
-  Toolbar,
-  AppBar,
-  Typography,
-} from "@mui/material";
+import { Box } from "@mui/material";
 
-import { useTheme } from "@mui/material";
-
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Resizable } from "re-resizable";
 
-import GraphInspector from "./GraphInspector";
-import GraphList from "./GraphList";
-import DrawerHeader from "../../components/DrawerHeader";
-
 import GraphEditor from "./GraphEditor";
-
-const drawerWidth = 240;
 
 const Graph = () => {
   return (
@@ -58,10 +40,22 @@ const Graph = () => {
             >
               {/* Graph content */}
               <GraphEditor>
-                <rect x="10" y="10" width="50" height="5" fill="blue" />
-                <rect x="90" y="10" width="5" height="5" fill="blue" />
-                <rect x="10" y="90" width="5" height="5" fill="blue" />
-                <rect x="90" y="90" width="5" height="5" fill="blue" />
+                <line
+                  x1="0"
+                  y1="0"
+                  x2="100"
+                  y2="0"
+                  stroke="red"
+                  strokeLinecap="round"
+                />
+                <line
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="100"
+                  stroke="black"
+                  strokeLinecap="round"
+                />
               </GraphEditor>
             </Box>
           </Resizable>

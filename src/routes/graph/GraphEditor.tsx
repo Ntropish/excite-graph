@@ -11,6 +11,7 @@ import { Menu, MenuItem } from "@mui/material";
 import { useParams } from "react-router-dom";
 import {
   Graph,
+  GraphEdges,
   GraphNode,
   useGraphListStore,
 } from "../../stores/useGraphListStore";
@@ -61,6 +62,16 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
 
   const svgRef = useRef<SVGSVGElement | null>(null);
 
+  const [connectingIndex, setConnectingIndex] = useState(-1);
+
+  const convertToPoint = (x: number, y: number) => {
+    const svg = svgRef.current!;
+    const pt = svg.createSVGPoint();
+    pt.x = x;
+    pt.y = y;
+    return pt.matrixTransform(svg.getScreenCTM()!.inverse());
+  };
+
   const onWheel = (event: WheelEvent<SVGSVGElement>) => {
     if (!svgRef.current) return;
 
@@ -75,12 +86,57 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
   };
 
   const onMouseDown = (event: MouseEvent<SVGSVGElement>) => {
+    if (!graphId) return;
+    // Cancel active states if the right mouse button is clicked
+    if (event.button !== 0) {
+      if (connectingIndex !== -1) {
+        setConnectingIndex(-1);
+      }
+      return;
+    }
+
+    if (connectingIndex !== -1) {
+      const target = event.target as Element;
+      const targetNode = target.closest("[data-entity='point']");
+
+      if (targetNode) {
+        const connectIndex = parseInt(
+          targetNode.getAttribute("data-id") || "-1"
+        );
+
+        const startIndex = Math.min(connectingIndex, connectIndex);
+        const endIndex = Math.max(connectingIndex, connectIndex);
+        const isFlipped = connectingIndex > connectIndex;
+
+        const newEdges: GraphEdges = {
+          ...activeGraph!.edges,
+          [startIndex]: {
+            ...activeGraph!.edges[startIndex],
+            [endIndex]: {
+              isFlipped,
+            },
+          },
+        };
+
+        const newGraph: Graph = {
+          ...activeGraph!,
+          edges: newEdges,
+        };
+
+        useGraphListStore.getState().updateGraph(graphId, newGraph);
+      }
+      setConnectingIndex(-1);
+    }
+
+    // Start panning
     startPointRef.current = convertToPoint(event.clientX, event.clientY);
     viewRectRef.current = viewBoxRect;
     setIsPanning(true);
   };
 
+  const [mousePosition, setMousePosition] = useState<DOMPoint | null>(null);
   const onMouseMove = (event: MouseEvent<SVGSVGElement>) => {
+    setMousePosition(convertToPoint(event.clientX, event.clientY));
     if (isPanning && viewRectRef.current && svgRef.current) {
       const scaleX = viewRectRef.current.width / (screenRect?.width || 1);
       const scaleY = viewRectRef.current.height / (screenRect?.height || 1);
@@ -99,14 +155,6 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
     setIsPanning(false);
     viewRectRef.current = null;
     startPointRef.current = null;
-  };
-
-  const convertToPoint = (x: number, y: number) => {
-    const svg = svgRef.current!;
-    const pt = svg.createSVGPoint();
-    pt.x = x;
-    pt.y = y;
-    return pt.matrixTransform(svg.getScreenCTM()!.inverse());
   };
 
   const [contextMenu, setContextMenu] = useState<{
@@ -185,8 +233,15 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
     handleClose();
   };
 
+  const connectNode = () => {
+    const connectIndex = parseInt(
+      contextMenuTarget?.getAttribute("data-id") || "-1"
+    );
+    setConnectingIndex(connectIndex);
+    handleClose();
+  };
+
   const focusContent = () => {
-    console.log("Focus Content");
     handleClose();
   };
 
@@ -202,7 +257,10 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
     />
   ));
 
-  console.log(points);
+  const connectionStart =
+    connectingIndex !== -1 ? activeGraph?.nodes[connectingIndex] : null;
+
+  const connectionEnd = mousePosition;
 
   return (
     <>
@@ -234,6 +292,16 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
         />
 
         {points}
+        {connectionEnd && connectionStart && (
+          <line
+            x1={connectionStart.x}
+            y1={connectionStart.y}
+            x2={connectionEnd.x}
+            y2={connectionEnd.y}
+            stroke="green"
+            strokeWidth={2}
+          />
+        )}
         {children}
       </svg>
       <Menu
@@ -248,6 +316,9 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
       >
         {contextMenuTarget && (
           <MenuItem onClick={deleteNode}>Delete Node</MenuItem>
+        )}
+        {contextMenuTarget && (
+          <MenuItem onClick={connectNode}>Connect Node</MenuItem>
         )}
 
         {!contextMenuTarget && <MenuItem onClick={addNode}>Add Node</MenuItem>}

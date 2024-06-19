@@ -10,16 +10,18 @@ interface EdgePayload {
   isFlipped: boolean;
 }
 
-interface Edges {
+export interface GraphEdgesLeaf {
   [targetNodeId: number]: EdgePayload;
+}
+
+export interface GraphEdges {
+  [startNodeId: number]: GraphEdgesLeaf;
 }
 
 export interface Graph {
   id: string;
   nodes: GraphNode[];
-  edges: {
-    [startNodeId: number]: Edges;
-  };
+  edges: GraphEdges;
   viewBox: string;
 }
 

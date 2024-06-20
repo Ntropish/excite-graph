@@ -15,7 +15,6 @@ import {
   GraphEdge,
   GraphNode,
   useGraphListStore,
-  graphEdgeSchema,
 } from "../../stores/useGraphListStore";
 
 import useResizeObserver from "use-resize-observer";
@@ -328,6 +327,7 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
           cy={node.y}
           r={10}
           fill="red"
+          style={{ cursor: "pointer" }}
         />
       );
     });
@@ -355,7 +355,8 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
           y2={endNode.y}
           stroke="black"
           strokeWidth={2}
-          markerEnd={edge.isFlipped ? "url(#arrow-reverse)" : "url(#arrow)"}
+          markerStart={edge.isFlipped ? "url(#arrow-reverse)" : ""}
+          markerEnd={!edge.isFlipped ? "url(#arrow)" : ""}
         />
       );
     });
@@ -392,6 +393,31 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
         }}
         preserveAspectRatio="none"
       >
+        <defs>
+          <marker
+            id="arrow"
+            markerWidth="10"
+            markerHeight="10"
+            refX="12"
+            refY="3"
+            orient="auto"
+            markerUnits="strokeWidth"
+          >
+            <path d="M0,0 L0,6 L9,3 z" fill="black" />
+          </marker>
+          <marker
+            id="arrow-reverse"
+            markerWidth="10"
+            markerHeight="10"
+            refX="12"
+            refY="3"
+            orient="auto-start-reverse"
+            markerUnits="strokeWidth"
+          >
+            <path d="M0,0 L0,6 L9,3 z" fill="black" />
+            {/* <path d="M0,3 L9,6 L9,0 z" fill="black" /> */}
+          </marker>
+        </defs>
         <GridLines
           width={screenRect?.width || 1}
           height={screenRect?.height || 1}

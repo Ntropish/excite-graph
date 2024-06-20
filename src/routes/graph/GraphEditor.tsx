@@ -4,6 +4,7 @@ import React, {
   WheelEvent,
   MouseEvent,
   useCallback,
+  useMemo,
 } from "react";
 import useViewBox from "../../useViewBox"; // Import the hook we created earlier
 import { Menu, MenuItem } from "@mui/material";
@@ -11,9 +12,10 @@ import { Menu, MenuItem } from "@mui/material";
 import { useParams } from "react-router-dom";
 import {
   Graph,
-  GraphEdges,
+  GraphEdge,
   GraphNode,
   useGraphListStore,
+  graphEdgeSchema,
 } from "../../stores/useGraphListStore";
 
 import useResizeObserver from "use-resize-observer";
@@ -62,7 +64,9 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
 
   const svgRef = useRef<SVGSVGElement | null>(null);
 
-  const [connectingIndex, setConnectingIndex] = useState(-1);
+  const [connectingId, setConnectingId] = useState<string | null>(null);
+
+  const [isDraggingNode, setIsDraggingNode] = useState<string | null>(null);
 
   const convertToPoint = (x: number, y: number) => {
     const svg = svgRef.current!;
@@ -89,49 +93,65 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
     if (!graphId) return;
     // Cancel active states if the right mouse button is clicked
     if (event.button !== 0) {
-      if (connectingIndex !== -1) {
-        setConnectingIndex(-1);
+      if (connectingId) {
+        setConnectingId(null);
       }
       return;
     }
 
-    if (connectingIndex !== -1) {
-      const target = event.target as Element;
-      const targetNode = target.closest("[data-entity='point']");
+    const target = event.target as Element;
+    const targetPoint = target.closest("[data-entity='point']");
 
-      if (targetNode) {
-        const connectIndex = parseInt(
-          targetNode.getAttribute("data-id") || "-1"
+    // Finish connecting nodes
+    if (activeGraph && connectingId) {
+      if (targetPoint) {
+        const connectIndex = targetPoint.getAttribute("data-id");
+
+        if (!connectIndex) return;
+
+        const startIndex = Math.min(
+          parseInt(connectingId),
+          parseInt(connectIndex)
         );
+        const endIndex = Math.max(
+          parseInt(connectingId),
+          parseInt(connectIndex)
+        );
+        const isFlipped = parseInt(connectingId) > parseInt(connectIndex);
 
-        const startIndex = Math.min(connectingIndex, connectIndex);
-        const endIndex = Math.max(connectingIndex, connectIndex);
-        const isFlipped = connectingIndex > connectIndex;
-
-        const newEdges: GraphEdges = {
-          ...activeGraph!.edges,
-          [startIndex]: {
-            ...activeGraph!.edges[startIndex],
-            [endIndex]: {
-              isFlipped,
-            },
-          },
+        const newEdge: GraphEdge = {
+          id: activeGraph.lastId + 1,
+          from: startIndex.toString(),
+          to: endIndex.toString(),
+          isFlipped,
         };
 
         const newGraph: Graph = {
           ...activeGraph!,
-          edges: newEdges,
+          edges: {
+            ...activeGraph.edges,
+            [newEdge.id]: newEdge,
+          },
+          lastId: newEdge.id,
         };
 
         useGraphListStore.getState().updateGraph(graphId, newGraph);
       }
-      setConnectingIndex(-1);
-    }
+      setConnectingId(null);
+    } else if (targetPoint) {
+      // Start dragging
 
-    // Start panning
-    startPointRef.current = convertToPoint(event.clientX, event.clientY);
-    viewRectRef.current = viewBoxRect;
-    setIsPanning(true);
+      const id = targetPoint.getAttribute("data-id");
+
+      if (!id) return;
+
+      setIsDraggingNode(id);
+    } else {
+      // Start panning
+      startPointRef.current = convertToPoint(event.clientX, event.clientY);
+      viewRectRef.current = viewBoxRect;
+      setIsPanning(true);
+    }
   };
 
   const [mousePosition, setMousePosition] = useState<DOMPoint | null>(null);
@@ -148,11 +168,41 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
       viewRectRef.current.y -= dy * scaleY;
 
       setViewBox(viewRectRef.current);
+    } else if (
+      isDraggingNode &&
+      svgRef.current &&
+      activeGraph?.nodes[isDraggingNode] &&
+      graphId
+    ) {
+      const point = convertToPoint(event.clientX, event.clientY);
+
+      const oldNodes: Record<string, GraphNode> = activeGraph?.nodes || {};
+      const newNodes: Record<string, GraphNode> = {
+        ...oldNodes,
+        [isDraggingNode]: {
+          ...activeGraph?.nodes[isDraggingNode],
+          x: point.x,
+          y: point.y,
+        },
+      };
+
+      const newGraph: Graph = {
+        ...activeGraph!,
+        nodes: newNodes,
+      };
+
+      useGraphListStore.getState().updateGraph(graphId, newGraph);
     }
   };
 
   const onMouseUp = () => {
-    setIsPanning(false);
+    if (isPanning) {
+      setIsPanning(false);
+    }
+
+    if (isDraggingNode) {
+      setIsDraggingNode(null);
+    }
     viewRectRef.current = null;
     startPointRef.current = null;
   };
@@ -196,16 +246,23 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
 
     const point = convertToPoint(contextMenu.mouseX!, contextMenu.mouseY!);
 
+    const id = activeGraph.lastId + 1;
+
     const newNode: GraphNode = {
+      id: id.toString(),
       x: point.x,
       y: point.y,
     };
 
-    const newNodes: GraphNode[] = [...(activeGraph?.nodes || []), newNode];
+    const newNodes = {
+      ...activeGraph.nodes,
+      [id]: newNode,
+    };
 
     const newGraph: Graph = {
       ...activeGraph!,
       nodes: newNodes,
+      lastId: id,
     };
 
     useGraphListStore.getState().updateGraph(graphId, newGraph);
@@ -216,13 +273,26 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
     if (!activeGraph) return;
     if (!graphId) return;
 
-    const deleteIndex = parseInt(
-      contextMenuTarget?.getAttribute("data-id") || "-1"
-    );
+    const deleteId = contextMenuTarget?.getAttribute("data-id") || "-1";
 
-    const newNodes = activeGraph.nodes.filter(
-      (_, index) => index !== deleteIndex
-    );
+    const newNodes = {
+      ...activeGraph.nodes,
+    };
+
+    delete newNodes[deleteId];
+
+    const newEdges = {
+      ...activeGraph.edges,
+    };
+
+    for (const [edgeId, edge] of Object.entries(newEdges)) {
+      if (
+        typeof edgeId === "string" &&
+        (edge.from === deleteId || edge.to === deleteId)
+      ) {
+        delete newEdges[edgeId];
+      }
+    }
 
     const newGraph: Graph = {
       ...activeGraph!,
@@ -234,10 +304,8 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
   };
 
   const connectNode = () => {
-    const connectIndex = parseInt(
-      contextMenuTarget?.getAttribute("data-id") || "-1"
-    );
-    setConnectingIndex(connectIndex);
+    const connectId = contextMenuTarget?.getAttribute("data-id") || "-1";
+    setConnectingId(connectId);
     handleClose();
   };
 
@@ -245,20 +313,59 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
     handleClose();
   };
 
-  const points = activeGraph?.nodes.map((node, index) => (
-    <circle
-      data-entity="point"
-      data-id={index}
-      key={index}
-      cx={node.x}
-      cy={node.y}
-      r={10}
-      fill="red"
-    />
-  ));
+  const points = useMemo(() => {
+    if (!activeGraph) return null;
 
-  const connectionStart =
-    connectingIndex !== -1 ? activeGraph?.nodes[connectingIndex] : null;
+    const pointList: JSX.Element[] = [];
+
+    Object.entries(activeGraph.nodes).forEach(([nodeId, node]) => {
+      pointList.push(
+        <circle
+          data-entity="point"
+          data-id={nodeId}
+          key={nodeId}
+          cx={node.x}
+          cy={node.y}
+          r={10}
+          fill="red"
+        />
+      );
+    });
+
+    return pointList;
+  }, [activeGraph]);
+
+  const edges = useMemo(() => {
+    if (!activeGraph) return null;
+
+    const edgeList: JSX.Element[] = [];
+
+    Object.entries(activeGraph.edges).forEach(([edgeId, edge]) => {
+      const startNode = activeGraph.nodes[edge.from];
+      const endNode = activeGraph.nodes[edge.to];
+
+      if (!startNode || !endNode) return;
+
+      edgeList.push(
+        <line
+          key={edgeId}
+          x1={startNode.x}
+          y1={startNode.y}
+          x2={endNode.x}
+          y2={endNode.y}
+          stroke="black"
+          strokeWidth={2}
+          markerEnd={edge.isFlipped ? "url(#arrow-reverse)" : "url(#arrow)"}
+        />
+      );
+    });
+
+    return edgeList;
+  }, [activeGraph]);
+
+  const connectionStart = connectingId
+    ? activeGraph?.nodes[connectingId]
+    : null;
 
   const connectionEnd = mousePosition;
 
@@ -291,7 +398,8 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
           viewBoxRect={viewBoxRect}
         />
 
-        {points}
+        {children}
+        {edges}
         {connectionEnd && connectionStart && (
           <line
             x1={connectionStart.x}
@@ -302,7 +410,7 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
             strokeWidth={2}
           />
         )}
-        {children}
+        {points}
       </svg>
       <Menu
         open={contextMenu.mouseY !== null}

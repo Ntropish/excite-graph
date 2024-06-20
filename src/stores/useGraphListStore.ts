@@ -1,29 +1,34 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-export interface GraphNode {
-  x: number;
-  y: number;
-}
+import * as z from "zod";
 
-interface EdgePayload {
-  isFlipped: boolean;
-}
+export const graphNodeSchema = z.object({
+  id: z.string(),
+  x: z.number(),
+  y: z.number(),
+});
 
-export interface GraphEdgesLeaf {
-  [targetNodeId: number]: EdgePayload;
-}
+export type GraphNode = z.infer<typeof graphNodeSchema>;
 
-export interface GraphEdges {
-  [startNodeId: number]: GraphEdgesLeaf;
-}
+export const graphEdgeSchema = z.object({
+  id: z.number(),
+  isFlipped: z.boolean(),
+  from: z.string(),
+  to: z.string(),
+});
 
-export interface Graph {
-  id: string;
-  nodes: GraphNode[];
-  edges: GraphEdges;
-  viewBox: string;
-}
+export type GraphEdge = z.infer<typeof graphEdgeSchema>;
+
+export const graphSchema = z.object({
+  id: z.string(),
+  nodes: z.record(graphNodeSchema),
+  edges: z.record(graphEdgeSchema),
+  viewBox: z.string(),
+  lastId: z.number(),
+});
+
+export type Graph = z.infer<typeof graphSchema>;
 
 interface GraphListState {
   graphMap: { [id: string]: Graph }; // Store graphs in a dictionary with their id as the key

@@ -372,6 +372,59 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
     handleClose();
   };
 
+  const splitEdge = () => {
+    if (!activeGraph) return;
+    if (!graphId) return;
+
+    const edgeId = contextMenuTarget?.dataset.id;
+
+    assert(edgeId, "data-id is not on the target");
+
+    const edge = activeGraph.edges[edgeId];
+
+    assert(edge, "Edge not found");
+
+    const newNodeId = (activeGraph.lastId + 1).toString();
+    const newEdgeId = (activeGraph.lastId + 2).toString();
+
+    const newNode: GraphNode = {
+      id: newNodeId,
+      x: (activeGraph.nodes[edge.from].x + activeGraph.nodes[edge.to].x) / 2,
+      y: (activeGraph.nodes[edge.from].y + activeGraph.nodes[edge.to].y) / 2,
+    };
+
+    const updatedEdge: GraphEdge = {
+      id: edgeId,
+      from: edge.from,
+      to: newNodeId,
+      isFlipped: edge.isFlipped,
+    };
+
+    const newEdge: GraphEdge = {
+      id: newEdgeId,
+      from: newNodeId,
+      to: edge.to,
+      isFlipped: edge.isFlipped,
+    };
+
+    const newGraph: Graph = {
+      ...activeGraph,
+      edges: {
+        ...activeGraph.edges,
+        [edgeId]: updatedEdge,
+        [newEdgeId]: newEdge,
+      },
+      nodes: {
+        ...activeGraph.nodes,
+        [newNodeId]: newNode,
+      },
+      lastId: activeGraph.lastId + 2,
+    };
+
+    useGraphListStore.getState().updateGraph(graphId, newGraph);
+    handleClose();
+  };
+
   const focusContent = () => {
     handleClose();
   };
@@ -600,6 +653,9 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
         )}
         {contextMenuEntityType === "edge" && (
           <MenuItem onClick={deleteEdge}>Delete Edge</MenuItem>
+        )}
+        {contextMenuEntityType === "edge" && (
+          <MenuItem onClick={splitEdge}>Split Edge</MenuItem>
         )}
 
         {!contextMenuTarget && <MenuItem onClick={addNode}>Add Node</MenuItem>}

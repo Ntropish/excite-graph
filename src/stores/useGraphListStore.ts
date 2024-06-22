@@ -12,7 +12,7 @@ export const graphNodeSchema = z.object({
 export type GraphNode = z.infer<typeof graphNodeSchema>;
 
 export const graphEdgeSchema = z.object({
-  id: z.number(),
+  id: z.string(),
   isFlipped: z.boolean(),
   from: z.string(),
   to: z.string(),

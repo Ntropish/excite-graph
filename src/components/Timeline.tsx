@@ -5,7 +5,13 @@ import {
   Switch,
   TextField,
   FormControlLabel,
+  FormControl,
+  Typography,
+  Box,
 } from "@mui/material";
+
+import { styled } from "@mui/system";
+
 import usePop from "../hooks/usePop";
 
 import { GraphEdge } from "../stores/useGraphListStore";
@@ -13,6 +19,17 @@ import { GraphEdge } from "../stores/useGraphListStore";
 import { useParams } from "react-router-dom";
 
 import { useGraphListStore } from "../stores/useGraphListStore";
+
+const StyledInput = styled("input")({
+  padding: 10,
+  border: "1px solid #ccc",
+  borderRadius: 4,
+  textAlign: "center",
+  fontSize: 16,
+  "&:focus": {
+    borderColor: "#333",
+  },
+});
 
 const Timeline = () => {
   const { graphId } = useParams<{ graphId: string }>();
@@ -69,20 +86,44 @@ const Timeline = () => {
   };
 
   return (
-    <Stack direction="column" spacing={2}>
+    <Stack
+      direction="row"
+      spacing={2}
+      justifyContent={"center"}
+      sx={{
+        my: 2,
+      }}
+    >
       <Button onClick={() => pop()}>Step</Button>
-      <Button onClick={handleCleanEdges}>Clean Edges</Button>
       <FormControlLabel
         control={<Switch checked={autoStep} onChange={handleAutoStepChange} />}
         label="Auto-Step"
       />
-      <TextField
+      {/* <TextField
         label="Step Interval (ms)"
         type="number"
         variant="outlined"
         value={stepInterval}
         onChange={handleStepIntervalChange}
-      />
+      /> */}
+
+      {/* <NumberInput
+        min={100}
+        value={stepInterval}
+        onChange={(_, value) => setStepInterval(value || 1000)}
+      /> */}
+
+      <Box>
+        <Typography>Step Interval (ms)</Typography>
+        <StyledInput
+          type="number"
+          value={stepInterval}
+          onChange={handleStepIntervalChange}
+          step={100}
+        />
+      </Box>
+
+      <Button onClick={handleCleanEdges}>Clean Edges</Button>
     </Stack>
   );
 };

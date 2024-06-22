@@ -40,7 +40,7 @@ const Graph = () => {
         <Box sx={{ height: "100%", bgcolor: "background.paper", minHeight: 0 }}>
           {/* Graph content */}
           <GraphEditor>
-            <line
+            {/* <line
               x1="0"
               y1="0"
               x2="100"
@@ -55,7 +55,7 @@ const Graph = () => {
               y2="100"
               stroke="black"
               strokeLinecap="round"
-            />
+            /> */}
           </GraphEditor>
         </Box>
       </Resizable>

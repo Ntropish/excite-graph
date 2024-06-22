@@ -28,7 +28,7 @@ import scaleRect from "../../util/scaleRect";
 import assert from "tiny-invariant";
 
 type InteractiveSVGProps = {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 };
 
 const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
@@ -406,7 +406,7 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
             stroke={popMap[nodeId] ? "red" : "black"}
             strokeWidth={2}
           />
-          <text
+          {/* <text
             x={node.x}
             y={node.y + 4}
             fontSize={11}
@@ -415,7 +415,7 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
             pointerEvents="none" // Prevents the label from interfering with node interaction
           >
             {nodeId}
-          </text>
+          </text> */}
         </g>
       );
     });
@@ -471,7 +471,7 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
             className="visible-edge"
           />
           {/* Edge label */}
-          <g>
+          {/* <g>
             <circle
               cx={midpointX}
               cy={midpointY}
@@ -493,7 +493,7 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
             >
               {edgeId}
             </text>
-          </g>
+          </g> */}
         </g>
       );
     });

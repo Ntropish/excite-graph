@@ -8,6 +8,7 @@ import GraphEditor from "./GraphEditor";
 import NodeList from "../../components/NodeList";
 import EdgeList from "../../components/EdgeList";
 import Timeline from "../../components/Timeline";
+import GraphToolbar from "../../components/GraphToolbar";
 
 const Graph = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -68,7 +69,9 @@ const Graph = () => {
           flexDirection: "column",
         }}
       >
+        <GraphToolbar />
         {/* Tabs for Nodes, Edges, Timeline */}
+
         <Tabs
           value={currentTab}
           onChange={handleChangeTab}

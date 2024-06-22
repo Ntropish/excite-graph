@@ -3,9 +3,7 @@ import {
   Stack,
   Button,
   Switch,
-  TextField,
   FormControlLabel,
-  FormControl,
   Typography,
   Box,
 } from "@mui/material";
@@ -97,48 +95,7 @@ const Timeline = () => {
         my: 2,
       }}
     >
-      <Button onClick={() => pop()}>Step</Button>
-      <FormControlLabel
-        control={<Switch checked={autoStep} onChange={handleAutoStepChange} />}
-        label="Auto-Step"
-      />
-      {/* <TextField
-        label="Step Interval (ms)"
-        type="number"
-        variant="outlined"
-        value={stepInterval}
-        onChange={handleStepIntervalChange}
-      /> */}
-
-      {/* <NumberInput
-        min={100}
-        value={stepInterval}
-        onChange={(_, value) => setStepInterval(value || 1000)}
-      /> */}
-
-      <Box>
-        <Typography>
-          Step Interval
-          <Typography
-            sx={{
-              display: "inline",
-              color: "hsla(0, 0%, 100%, 0.6)",
-              fontSize: 14,
-            }}
-          >
-            {" "}
-            (ms)
-          </Typography>
-        </Typography>
-        <StyledInput
-          type="number"
-          value={stepInterval}
-          onChange={handleStepIntervalChange}
-          step={100}
-        />
-      </Box>
-
-      <Button onClick={handleCleanEdges}>Clean Edges</Button>
+      <Typography>Timeline</Typography>
     </Stack>
   );
 };

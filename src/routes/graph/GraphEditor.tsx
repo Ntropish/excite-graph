@@ -123,7 +123,7 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
         const isFlipped = parseInt(connectingId) > parseInt(connectIndex);
 
         const newEdge: GraphEdge = {
-          id: activeGraph.lastId + 1,
+          id: (activeGraph.lastId + 1).toString(),
           from: startIndex.toString(),
           to: endIndex.toString(),
           isFlipped,
@@ -135,7 +135,7 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
             ...activeGraph.edges,
             [newEdge.id]: newEdge,
           },
-          lastId: newEdge.id,
+          lastId: activeGraph.lastId + 1,
         };
 
         useGraphListStore.getState().updateGraph(graphId, newGraph);

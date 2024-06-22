@@ -8,7 +8,6 @@ import {
   useMaterialReactTable,
 } from "material-react-table";
 
-import useResizeObserver from "use-resize-observer";
 const NodeList = () => {
   const { graphId } = useParams<{ graphId: string }>();
 

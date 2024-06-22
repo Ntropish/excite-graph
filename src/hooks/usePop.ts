@@ -4,34 +4,24 @@ import type { Graph, GraphNode } from "../stores/useGraphListStore";
 
 import { useGraphListStore } from "../stores/useGraphListStore";
 
-const usePop = ({
-  activeGraph,
-  graphId,
-}: {
-  activeGraph: Graph | null;
-  graphId: string | null;
-}) => {
+import { useParams } from "react-router-dom";
+
+const usePop = () => {
+  const { graphId } = useParams<{ graphId: string }>();
+
+  const graphList = useGraphListStore((state) => state.graphs);
+
+  const activeGraph = graphList.find((graph) => graph.id === graphId);
+
   const popMap = useMemo<Record<string, GraphNode>>(() => {
     if (!activeGraph) return {};
     const candidates = { ...activeGraph.nodes };
 
     for (const edge of Object.values(activeGraph.edges)) {
       if (edge.from in candidates && !edge.isFlipped) {
-        console.log(
-          "Deleting",
-          edge.from,
-          "from candidates because of edge",
-          edge
-        );
         delete candidates[edge.from];
       }
       if (edge.to in candidates && edge.isFlipped) {
-        console.log(
-          "Deleting",
-          edge.to,
-          "from candidates because of edge",
-          edge
-        );
         delete candidates[edge.to];
       }
     }
@@ -47,15 +37,12 @@ const usePop = ({
 
     for (const nodeId in popMap) {
       for (const [edgeId, edge] of Object.entries(activeGraph.edges)) {
-        console.log("Checking edge", edgeId, edge, "from node", nodeId);
         if (edge.from === nodeId && edge.isFlipped) {
-          console.log("Flipping edge", edgeId, edge, "to", !edge.isFlipped);
           newEdges[edgeId] = {
             ...edge,
             isFlipped: false,
           };
         } else if (edge.to === nodeId && !edge.isFlipped) {
-          console.log("Flipping edge", edgeId, edge, "to", !edge.isFlipped);
           newEdges[edgeId] = {
             ...edge,
             isFlipped: true,
@@ -68,8 +55,6 @@ const usePop = ({
       ...activeGraph,
       edges: newEdges,
     };
-
-    console.log(graphId, newGraph);
 
     useGraphListStore.getState().updateGraph(graphId, newGraph);
   }, [activeGraph, popMap, graphId]);

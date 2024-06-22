@@ -314,10 +314,7 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
     handleClose();
   };
 
-  const { pop, popMap } = usePop({
-    activeGraph,
-    graphId,
-  });
+  const { pop, popMap } = usePop();
 
   const handlePop = useCallback(() => {
     pop();

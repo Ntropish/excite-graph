@@ -314,6 +314,44 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
     handleClose();
   };
 
+  const createConnectedNode = () => {
+    if (!activeGraph) return;
+    if (!graphId) return;
+
+    const connectId = contextMenuTarget?.getAttribute("data-id") || "-1";
+
+    const connectNode = activeGraph.nodes[connectId];
+
+    const newEdge: GraphEdge = {
+      id: (activeGraph.lastId + 1).toString(),
+      from: connectId,
+      to: (activeGraph.lastId + 2).toString(),
+      isFlipped: false,
+    };
+
+    const newNode: GraphNode = {
+      id: (activeGraph.lastId + 2).toString(),
+      x: connectNode.x,
+      y: connectNode.y + 50,
+    };
+
+    const newGraph: Graph = {
+      ...activeGraph,
+      edges: {
+        ...activeGraph.edges,
+        [newEdge.id]: newEdge,
+      },
+      nodes: {
+        ...activeGraph.nodes,
+        [newNode.id]: newNode,
+      },
+      lastId: activeGraph.lastId + 2,
+    };
+
+    useGraphListStore.getState().updateGraph(graphId, newGraph);
+    handleClose();
+  };
+
   const popNode = () => {
     const nodeId = contextMenuTarget?.dataset.id;
     assert(nodeId, "data-id is not on the target");
@@ -647,6 +685,11 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
         )}
         {contextMenuEntityType === "node" && (
           <MenuItem onClick={popNode}>Pop Node</MenuItem>
+        )}
+        {contextMenuEntityType === "node" && (
+          <MenuItem onClick={createConnectedNode}>
+            Create Connected Node
+          </MenuItem>
         )}
 
         {contextMenuEntityType === "edge" && (

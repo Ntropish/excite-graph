@@ -7,6 +7,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+
 import { useSearchParams } from "react-router-dom";
 
 import { Resizable } from "re-resizable";
@@ -43,8 +44,8 @@ const Graph = () => {
     >
       <Resizable
         defaultSize={{
-          width: isWideScreen ? "50%" : "100%",
-          height: isWideScreen ? "100%" : "50%",
+          width: isWideScreen ? "70%" : "100%",
+          height: isWideScreen ? "100%" : "70%",
         }}
         enable={{
           bottom: !isWideScreen,
@@ -95,12 +96,12 @@ const Graph = () => {
         >
           <Tab label="Nodes" value="nodes" />
           <Tab label="Edges" value="edges" />
-          <Tab label="Timeline" value="timeline" />
+          {/* <Tab label="Timeline" value="timeline" /> */}
         </Tabs>
         {/* Conditional rendering based on the current tab */}
         {currentTab === "nodes" && <NodeList />}
         {currentTab === "edges" && <EdgeList />}
-        {currentTab === "timeline" && <Timeline />}
+        {/* {currentTab === "timeline" && <Timeline />} */}
       </Box>
     </Box>
   );

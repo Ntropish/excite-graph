@@ -1,7 +1,8 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 
-import { Button } from "@mui/material";
+import { Button, IconButton } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   MRT_ColumnDef,
   MaterialReactTable,
@@ -49,13 +50,9 @@ function GraphList() {
     {
       header: "Actions",
       Cell: ({ row }) => (
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => removeGraph(row.original.id)}
-        >
-          Delete
-        </Button>
+        <IconButton onClick={() => removeGraph(row.original.id)}>
+          <DeleteIcon />
+        </IconButton>
       ),
     },
   ];

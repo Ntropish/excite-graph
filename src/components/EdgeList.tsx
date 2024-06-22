@@ -1,5 +1,7 @@
 import React, { useMemo } from "react";
-import { Button, Box } from "@mui/material";
+import { Button, Box, IconButton, Typography } from "@mui/material";
+
+import DeleteIcon from "@mui/icons-material/Delete";
 import { GraphEdge, useGraphListStore } from "../stores/useGraphListStore";
 import { useParams } from "react-router-dom";
 import {
@@ -36,6 +38,12 @@ const EdgeList = () => {
     {
       accessorKey: "id",
       header: "ID",
+      size: 70,
+      Cell: ({ cell }) => (
+        <Typography sx={{ fontSize: 12, color: "hsla(0, 0%, 100%, 0.7)" }}>
+          {cell.getValue<string>()}
+        </Typography>
+      ),
     },
     {
       accessorKey: "from",
@@ -48,13 +56,9 @@ const EdgeList = () => {
     {
       header: "Actions",
       Cell: ({ row }) => (
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => removeEdge(row.original.id)}
-        >
-          Delete
-        </Button>
+        <IconButton onClick={() => removeEdge(row.original.id)}>
+          <DeleteIcon />
+        </IconButton>
       ),
     },
   ];
@@ -67,11 +71,10 @@ const EdgeList = () => {
     enablePagination: false,
     enableStickyFooter: true,
     enableBottomToolbar: true,
-    muiTableContainerProps: {
-      sx: { height: "100%" },
-    },
-    muiTablePaperProps: {
-      sx: { height: "100%" },
+    enableDensityToggle: false,
+
+    state: {
+      density: "compact",
     },
   });
 

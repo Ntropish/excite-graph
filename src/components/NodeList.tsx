@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Button, Box, IconButton } from "@mui/material";
+import { Button, Box, IconButton, Typography } from "@mui/material";
 import { GraphNode, useGraphListStore } from "../stores/useGraphListStore";
 import { useParams } from "react-router-dom";
 
@@ -39,6 +39,11 @@ const NodeList = () => {
       accessorKey: "id",
       header: "ID",
       size: 60,
+      Cell: ({ cell }) => (
+        <Typography sx={{ fontSize: 12, color: "hsla(0, 0%, 100%, 0.7)" }}>
+          {cell.getValue<string>()}
+        </Typography>
+      ),
     },
     {
       // truncate to three decimal places
@@ -73,6 +78,7 @@ const NodeList = () => {
     enableStickyFooter: true,
     enableBottomToolbar: true,
     enableDensityToggle: false,
+
     state: {
       density: "compact",
     },

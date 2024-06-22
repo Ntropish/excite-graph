@@ -25,6 +25,8 @@ import GridLines from "./GridLines";
 
 import scaleRect from "../../util/scaleRect";
 
+import assert from "tiny-invariant";
+
 type InteractiveSVGProps = {
   children: React.ReactNode;
 };
@@ -311,6 +313,15 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
     handleClose();
   };
 
+  const popNode = () => {
+    const nodeId = contextMenuTarget?.dataset.id;
+    assert(nodeId, "data-id is not on the target");
+
+    pop(nodeId);
+
+    handleClose();
+  };
+
   const flipEdge = () => {
     if (!activeGraph) return;
     if (!graphId) return;
@@ -556,6 +567,9 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
         )}
         {contextMenuEntityType === "node" && (
           <MenuItem onClick={connectNode}>Connect Node</MenuItem>
+        )}
+        {contextMenuEntityType === "node" && (
+          <MenuItem onClick={popNode}>Pop Node</MenuItem>
         )}
 
         {contextMenuEntityType === "edge" && (

@@ -322,6 +322,29 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
     handleClose();
   };
 
+  const deleteEdge = () => {
+    if (!activeGraph) return;
+    if (!graphId) return;
+
+    const edgeId = contextMenuTarget?.dataset.id;
+
+    assert(edgeId, "data-id is not on the target");
+
+    const newEdges = {
+      ...activeGraph.edges,
+    };
+
+    delete newEdges[edgeId];
+
+    const newGraph: Graph = {
+      ...activeGraph,
+      edges: newEdges,
+    };
+
+    useGraphListStore.getState().updateGraph(graphId, newGraph);
+    handleClose();
+  };
+
   const flipEdge = () => {
     if (!activeGraph) return;
     if (!graphId) return;
@@ -574,6 +597,9 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
 
         {contextMenuEntityType === "edge" && (
           <MenuItem onClick={flipEdge}>Flip Edge</MenuItem>
+        )}
+        {contextMenuEntityType === "edge" && (
+          <MenuItem onClick={deleteEdge}>Delete Edge</MenuItem>
         )}
 
         {!contextMenuTarget && <MenuItem onClick={addNode}>Add Node</MenuItem>}

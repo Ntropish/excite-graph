@@ -101,12 +101,12 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
     }
 
     const target = event.target as Element;
-    const targetPoint = target.closest("[data-entity='point']");
+    const targetNode = target.closest("[data-entity='node']");
 
     // Finish connecting nodes
     if (activeGraph && connectingId) {
-      if (targetPoint) {
-        const connectIndex = targetPoint.getAttribute("data-id");
+      if (targetNode) {
+        const connectIndex = targetNode.getAttribute("data-id");
 
         if (!connectIndex) return;
 
@@ -139,10 +139,10 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
         useGraphListStore.getState().updateGraph(graphId, newGraph);
       }
       setConnectingId(null);
-    } else if (targetPoint) {
+    } else if (targetNode) {
       // Start dragging
 
-      const id = targetPoint.getAttribute("data-id");
+      const id = targetNode.getAttribute("data-id");
 
       if (!id) return;
 
@@ -213,19 +213,20 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
     mouseY: null | number;
   }>({ mouseX: null, mouseY: null });
 
-  const [contextMenuTarget, setContextMenuTarget] = useState<Element | null>(
-    null
-  );
+  const [contextMenuTarget, setContextMenuTarget] =
+    useState<HTMLElement | null>(null);
+
+  const contextMenuEntityType = contextMenuTarget?.dataset?.entity || null;
 
   const handleContextMenu = useCallback((event: MouseEvent<SVGSVGElement>) => {
     console.log(event.target);
 
     const target = event.target as Element;
 
-    const closestPoint = target.closest("[data-entity='point']");
+    const closestPoint = target.closest("[data-entity]");
 
     if (closestPoint) {
-      setContextMenuTarget(closestPoint);
+      setContextMenuTarget(closestPoint as HTMLElement);
     } else {
       setContextMenuTarget(null);
     }
@@ -282,7 +283,7 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
 
     delete newNodes[deleteId];
 
-    const newEdges = {
+    const newEdges: Record<string, GraphEdge> = {
       ...activeGraph.edges,
     };
 
@@ -310,6 +311,33 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
     handleClose();
   };
 
+  const flipEdge = () => {
+    if (!activeGraph) return;
+    if (!graphId) return;
+
+    const edgeId = contextMenuTarget?.getAttribute("data-id") || "-1";
+
+    const edge = activeGraph.edges[edgeId];
+
+    if (!edge) return;
+
+    const newEdge: GraphEdge = {
+      ...edge,
+      isFlipped: !edge.isFlipped,
+    };
+
+    const newGraph: Graph = {
+      ...activeGraph,
+      edges: {
+        ...activeGraph.edges,
+        [edgeId]: newEdge,
+      },
+    };
+
+    useGraphListStore.getState().updateGraph(graphId, newGraph);
+    handleClose();
+  };
+
   const focusContent = () => {
     handleClose();
   };
@@ -329,10 +357,8 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
 
     Object.entries(activeGraph.nodes).forEach(([nodeId, node]) => {
       pointList.push(
-        <g key={nodeId}>
+        <g key={nodeId} data-entity="node" data-id={nodeId}>
           <circle
-            data-entity="point"
-            data-id={nodeId}
             cx={node.x}
             cy={node.y}
             r={10}
@@ -373,7 +399,27 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
       const midpointY = (startNode.y + endNode.y) / 2;
 
       edgeList.push(
-        <g key={edgeId}>
+        <g
+          key={edgeId}
+          className="graph-edge"
+          data-entity="edge"
+          data-id={edgeId}
+        >
+          {/* Invisible line for better mouse interaction */}
+          <line
+            x1={startNode.x}
+            y1={startNode.y}
+            x2={endNode.x}
+            y2={endNode.y}
+            stroke="transparent"
+            strokeWidth={10} // Wider stroke for easier clicking
+            onClick={(e) => console.log(`Edge ${edgeId} clicked`, e)}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              console.log(`Right-click on edge ${edgeId}`);
+            }}
+          />
+          {/* Visible line */}
           <line
             x1={startNode.x}
             y1={startNode.y}
@@ -383,15 +429,31 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
             strokeWidth={2}
             markerStart={edge.isFlipped ? "url(#arrow-reverse)" : ""}
             markerEnd={!edge.isFlipped ? "url(#arrow)" : ""}
+            className="visible-edge"
           />
-          <text
-            x={midpointX}
-            y={midpointY + 4}
-            fill="black"
-            textAnchor="middle"
-          >
-            {edgeId}
-          </text>
+          {/* Edge label */}
+          <g>
+            <circle
+              cx={midpointX}
+              cy={midpointY}
+              r={10}
+              fill={"hsl(0, 0%, 100%, 1)"}
+              style={{ cursor: "pointer" }}
+              onClick={(e) => console.log(`Edge ${edgeId} clicked`, e)}
+              onContextMenu={(e) => {
+                e.preventDefault();
+                console.log(`Right-click on edge ${edgeId}`);
+              }}
+            ></circle>
+            <text
+              x={midpointX}
+              y={midpointY + 6}
+              fill="black"
+              textAnchor="middle"
+            >
+              {edgeId}
+            </text>
+          </g>
         </g>
       );
     });
@@ -482,11 +544,15 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
             : undefined
         }
       >
-        {contextMenuTarget && (
+        {contextMenuEntityType === "node" && (
           <MenuItem onClick={deleteNode}>Delete Node</MenuItem>
         )}
-        {contextMenuTarget && (
+        {contextMenuEntityType === "node" && (
           <MenuItem onClick={connectNode}>Connect Node</MenuItem>
+        )}
+
+        {contextMenuEntityType === "edge" && (
+          <MenuItem onClick={flipEdge}>Flip Edge</MenuItem>
         )}
 
         {!contextMenuTarget && <MenuItem onClick={addNode}>Add Node</MenuItem>}

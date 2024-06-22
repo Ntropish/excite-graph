@@ -4,3 +4,10 @@ body {
   padding: 0;
   background-color: #f0f0f0;
 }
+
+.graph-edge .visible-edge {
+  transition: stroke 0.2s ease;
+}
+.graph-edge:hover .visible-edge {
+  stroke: hsla(0, 0%, 0%, 0.5);
+}

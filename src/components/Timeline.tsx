@@ -22,12 +22,15 @@ import { useGraphListStore } from "../stores/useGraphListStore";
 
 const StyledInput = styled("input")({
   padding: 10,
-  border: "1px solid #ccc",
+  border: "1px solid hsla(0, 0%, 100%, 0.4)",
+  backgroundColor: "hsla(0, 0%, 15%, 0.9)",
+  color: "#fff",
   borderRadius: 4,
   textAlign: "center",
   fontSize: 16,
+  marginTop: 4,
   "&:focus": {
-    borderColor: "#333",
+    borderColor: "hsla(0, 0%, 100%, 0.6)",
   },
 });
 
@@ -114,7 +117,19 @@ const Timeline = () => {
       /> */}
 
       <Box>
-        <Typography>Step Interval (ms)</Typography>
+        <Typography>
+          Step Interval
+          <Typography
+            sx={{
+              display: "inline",
+              color: "hsla(0, 0%, 100%, 0.6)",
+              fontSize: 14,
+            }}
+          >
+            {" "}
+            (ms)
+          </Typography>
+        </Typography>
         <StyledInput
           type="number"
           value={stepInterval}

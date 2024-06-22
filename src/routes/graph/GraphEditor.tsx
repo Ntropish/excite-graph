@@ -403,8 +403,8 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
             r={10}
             fill={"hsl(0, 0%, 30%)"}
             style={{ cursor: "pointer" }}
-            stroke={popMap[nodeId] ? "red" : "black"}
-            strokeWidth={2}
+            stroke={"hsl(0, 0%, 100%, 0.8)"}
+            strokeWidth={popMap[nodeId] ? 2 : 0}
           />
           {/* <text
             x={node.x}
@@ -464,7 +464,7 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
             y1={startNode.y}
             x2={endNode.x}
             y2={endNode.y}
-            stroke="hsla(0, 0%, 0%, 0.2)"
+            stroke="hsla(0, 0%, 100%, 0.2)"
             strokeWidth={2}
             markerStart={edge.isFlipped ? "url(#arrow-reverse)" : ""}
             markerEnd={!edge.isFlipped ? "url(#arrow)" : ""}

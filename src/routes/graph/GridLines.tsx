@@ -25,7 +25,7 @@ const Grid: React.FC<GridProps> = ({ width, height, viewBoxRect }) => {
         <line
           key={`horizontal-${tick}`}
           className="minor-grid-line"
-          stroke="#e0e0e0"
+          stroke="hsla(0, 0%, 100%, 0.1)"
           strokeWidth="0.5"
           x1={viewBoxRect.x}
           x2={viewBoxRect.x + viewBoxRect.width}
@@ -42,7 +42,7 @@ const Grid: React.FC<GridProps> = ({ width, height, viewBoxRect }) => {
         <line
           key={`vertical-${tick}`}
           className="minor-grid-line"
-          stroke="#e0e0e0"
+          stroke="hsla(0, 0%, 100%, 0.1)"
           strokeWidth="0.5"
           x1={tick}
           x2={tick}

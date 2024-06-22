@@ -301,6 +301,7 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
     const newGraph: Graph = {
       ...activeGraph!,
       nodes: newNodes,
+      edges: newEdges,
     };
 
     useGraphListStore.getState().updateGraph(graphId, newGraph);

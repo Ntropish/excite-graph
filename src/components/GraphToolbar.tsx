@@ -141,7 +141,7 @@ const GraphToolbar = () => {
         sx={{
           border: "1px solid hsla(0, 0%, 100%, 0.2)",
           padding: "0.5rem 1rem 1rem",
-          borderRadius: 4,
+          borderRadius: "0.25rem",
         }}
       >
         <FormControlLabel

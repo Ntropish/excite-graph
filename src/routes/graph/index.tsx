@@ -1,4 +1,12 @@
-import { Box, Tab, Tabs } from "@mui/material";
+import {
+  Box,
+  Tab,
+  Tabs,
+  Stack,
+  Grid,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { useSearchParams } from "react-router-dom";
 
 import { Resizable } from "re-resizable";
@@ -14,6 +22,12 @@ const Graph = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get("tab") || "nodes";
 
+  const theme = useTheme();
+
+  const isWideScreen = useMediaQuery(
+    "(min-width:1200px) and (min-aspect-ratio: 16/9)"
+  ); // Adjust 'lg' as needed
+
   const handleChangeTab = (event: React.SyntheticEvent, newValue: string) => {
     setSearchParams({ tab: newValue });
   };
@@ -22,54 +36,53 @@ const Graph = () => {
       sx={{
         flex: 1,
         display: "flex",
-        flexDirection: "column",
-
+        flexDirection: isWideScreen ? "row" : "column",
         height: "100%",
+        overflow: "hidden",
       }}
     >
       <Resizable
-        defaultSize={{ width: "100%", height: "50%" }}
-        enable={{ bottom: true }}
-        minHeight={"10%"}
-        maxHeight={"90%"}
+        defaultSize={{
+          width: isWideScreen ? "50%" : "100%",
+          height: isWideScreen ? "100%" : "50%",
+        }}
+        enable={{
+          bottom: !isWideScreen,
+          right: isWideScreen,
+        }}
+        minHeight={isWideScreen ? "100%" : "10%"}
+        maxHeight={isWideScreen ? "100%" : "90%"}
+        minWidth={isWideScreen ? "10%" : "100%"}
         style={{
           display: "flex",
           flexDirection: "column",
-          backgroundColor: "red",
+          borderBottom: isWideScreen
+            ? "none"
+            : `1px solid ${theme.palette.divider}`,
+          borderRight: isWideScreen
+            ? `1px solid ${theme.palette.divider}`
+            : "none",
         }}
       >
-        <Box sx={{ height: "100%", bgcolor: "background.paper", minHeight: 0 }}>
+        <Stack
+          direction="column"
+          sx={{ height: "100%", bgcolor: "background.paper", minHeight: 0 }}
+        >
           {/* Graph content */}
-          <GraphEditor>
-            {/* <line
-              x1="0"
-              y1="0"
-              x2="100"
-              y2="0"
-              stroke="red"
-              strokeLinecap="round"
-            />
-            <line
-              x1="0"
-              y1="0"
-              x2="0"
-              y2="100"
-              stroke="black"
-              strokeLinecap="round"
-            /> */}
-          </GraphEditor>
-        </Box>
+          <GraphEditor></GraphEditor>
+          <GraphToolbar />
+        </Stack>
       </Resizable>
       <Box
         sx={{
           flex: 1,
           bgcolor: "background.paper",
           minHeight: 0,
+          minWidth: 0,
           display: "flex",
           flexDirection: "column",
         }}
       >
-        <GraphToolbar />
         {/* Tabs for Nodes, Edges, Timeline */}
 
         <Tabs

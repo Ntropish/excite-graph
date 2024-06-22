@@ -70,12 +70,8 @@ const NodeList = () => {
     enablePagination: false,
     enableStickyFooter: true,
     enableBottomToolbar: true,
-    muiTableContainerProps: {
-      sx: { height: "100%" },
-    },
-    muiTablePaperProps: {
-      sx: { height: "100%" },
-    },
+    muiTableContainerProps: {},
+    muiTablePaperProps: {},
   });
 
   if (!graphId || !activeGraph) {

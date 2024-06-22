@@ -6,7 +6,10 @@ import {
   Grid,
   useMediaQuery,
   useTheme,
+  IconButton,
 } from "@mui/material";
+
+import CloseIcon from "@mui/icons-material/Close";
 
 import { useSearchParams } from "react-router-dom";
 
@@ -21,7 +24,7 @@ import GraphToolbar from "../../components/GraphToolbar";
 
 const Graph = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const currentTab = searchParams.get("tab") || "nodes";
+  const currentTab = searchParams.get("tab");
 
   const theme = useTheme();
 
@@ -30,8 +33,29 @@ const Graph = () => {
   ); // Adjust 'lg' as needed
 
   const handleChangeTab = (event: React.SyntheticEvent, newValue: string) => {
-    setSearchParams({ tab: newValue });
+    setSearchParams({ tab: newValue }, { replace: true });
   };
+
+  const handleCloseTabs = () => {
+    setSearchParams(undefined, { replace: true });
+  };
+
+  const meat = (
+    <Stack
+      key="meat"
+      direction="column"
+      sx={{ height: "100%", bgcolor: "background.paper", minHeight: 0 }}
+    >
+      {/* Graph content */}
+      <GraphEditor></GraphEditor>
+      <GraphToolbar />
+    </Stack>
+  );
+
+  if (!currentTab) {
+    return meat;
+  }
+
   return (
     <Box
       sx={{
@@ -66,14 +90,7 @@ const Graph = () => {
             : "none",
         }}
       >
-        <Stack
-          direction="column"
-          sx={{ height: "100%", bgcolor: "background.paper", minHeight: 0 }}
-        >
-          {/* Graph content */}
-          <GraphEditor></GraphEditor>
-          <GraphToolbar />
-        </Stack>
+        {meat}
       </Resizable>
       <Box
         sx={{
@@ -87,17 +104,19 @@ const Graph = () => {
       >
         {/* Tabs for Nodes, Edges, Timeline */}
 
-        <Tabs
-          value={currentTab}
-          onChange={handleChangeTab}
-          indicatorColor="primary"
-          textColor="primary"
-          variant="fullWidth"
-        >
-          <Tab label="Nodes" value="nodes" />
-          <Tab label="Edges" value="edges" />
-          {/* <Tab label="Timeline" value="timeline" /> */}
-        </Tabs>
+        <Stack>
+          <Tabs
+            value={currentTab}
+            onChange={handleChangeTab}
+            indicatorColor="primary"
+            textColor="primary"
+            variant="fullWidth"
+          >
+            <Tab label="Nodes" value="nodes" />
+            <Tab label="Edges" value="edges" />
+            {/* <Tab label="Timeline" value="timeline" /> */}
+          </Tabs>
+        </Stack>
         {/* Conditional rendering based on the current tab */}
         {currentTab === "nodes" && <NodeList />}
         {currentTab === "edges" && <EdgeList />}

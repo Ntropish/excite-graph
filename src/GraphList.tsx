@@ -12,7 +12,11 @@ import { useGraphListStore } from "./stores/useGraphListStore";
 
 import { useNavigate } from "react-router-dom";
 
+import { useSearchParams } from "react-router-dom";
+
 function GraphList() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const graphs = useGraphListStore((state) => state.graphs);
   const removeGraph = useGraphListStore((state) => state.removeGraph);
   const addGraph = useGraphListStore((state) => state.addGraph);
@@ -34,9 +38,13 @@ function GraphList() {
       header: "Graph ID",
     },
     {
-      accessorKey: "nodes.length",
+      accessorKey: "nodes",
       header: "Number of Nodes",
-      Cell: ({ cell }) => cell.getValue<number>(),
+      Cell: ({ cell }) =>
+        Object.values(cell.getValue<object>()).reduce(
+          (acc, edges) => acc + Object.keys(edges).length,
+          0
+        ),
     },
     {
       accessorKey: "edges",
@@ -71,7 +79,8 @@ function GraphList() {
     ),
     muiTableBodyRowProps: ({ row }) => ({
       onClick: (event) => {
-        navigate(`/graph/${row.original.id}`);
+        const query = new URLSearchParams(searchParams);
+        navigate(`/graph/${row.original.id}?${query.toString()}`);
       },
     }),
   });

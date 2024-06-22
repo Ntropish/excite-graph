@@ -5,10 +5,13 @@ import {
   Switch,
   FormControlLabel,
   Typography,
+  Box,
 } from "@mui/material";
 
 import { styled } from "@mui/system";
 import usePop from "../hooks/usePop";
+
+import { useSearchParams } from "react-router-dom";
 
 const StyledInput = styled("input")({
   padding: 10,
@@ -25,9 +28,14 @@ const StyledInput = styled("input")({
 });
 
 const GraphToolbar = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { pop } = usePop();
-  const [autoStep, setAutoStep] = useState(false);
-  const [stepInterval, setStepInterval] = useState(1000); // Default step interval is 1000ms (1 second)
+  const [autoStep, setAutoStep] = useState(
+    searchParams.get("autoStep") === "true"
+  );
+  const [stepInterval, setStepInterval] = useState(
+    Number(searchParams.get("stepInterval")) || 1000
+  );
 
   useEffect(() => {
     let interval: number | null = null;
@@ -60,6 +68,17 @@ const GraphToolbar = () => {
 
   const handleAutoStepChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setAutoStep(event.target.checked);
+    setSearchParams((old) => {
+      const newParams = new URLSearchParams(old);
+
+      if (event.target.checked) {
+        newParams.set("autoStep", "true");
+      } else {
+        newParams.delete("autoStep");
+      }
+
+      return newParams;
+    });
   };
 
   const handleStepIntervalChange = (
@@ -67,6 +86,11 @@ const GraphToolbar = () => {
   ) => {
     const interval = Math.max(Number(event.target.value), 100); // Ensure the interval is not less than 100ms
     setStepInterval(interval);
+    setSearchParams((old) => {
+      const newParams = new URLSearchParams(old);
+      newParams.set("stepInterval", interval.toString());
+      return newParams;
+    });
   };
 
   // const handleCleanEdges = () => {
@@ -87,6 +111,22 @@ const GraphToolbar = () => {
   //   });
   // };
 
+  const handleOpenTabs = () => {
+    setSearchParams((old) => {
+      const newParams = new URLSearchParams(old);
+      newParams.set("tab", "nodes");
+      return newParams;
+    });
+  };
+
+  const handleCloseTabs = () => {
+    setSearchParams((old) => {
+      const newParams = new URLSearchParams(old);
+      newParams.delete("tab");
+      return newParams;
+    });
+  };
+
   return (
     <Stack
       direction="row"
@@ -105,6 +145,7 @@ const GraphToolbar = () => {
         }
       }}
     >
+      <Box sx={{ flex: "1 1 0" }}></Box>
       <Button onClick={() => pop()}>
         <Stack>
           Step
@@ -178,6 +219,19 @@ const GraphToolbar = () => {
           step={100}
         />
       </Stack>
+
+      <Box sx={{ flex: "1 1 0", display: "flex" }} justifyContent={"right"}>
+        {!searchParams.get("tab") && (
+          <Button onClick={handleOpenTabs} variant="text" sx={{ m: 2 }}>
+            Lists
+          </Button>
+        )}
+        {searchParams.get("tab") && (
+          <Button onClick={handleCloseTabs} variant="text" sx={{ m: 2 }}>
+            Close Lists
+          </Button>
+        )}
+      </Box>
 
       {/* <Button onClick={handleCleanEdges}>Clean Edges</Button> */}
     </Stack>

@@ -53,7 +53,14 @@ const App = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              flexGrow: 1,
+              fontWeight: 200,
+              color: "hsla(0, 0%, 100%, 0.7)",
+            }}
+          >
             Excitable Graph
           </Typography>
         </Toolbar>

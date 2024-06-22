@@ -5,6 +5,7 @@ import React, {
   MouseEvent,
   useCallback,
   useMemo,
+  useEffect,
 } from "react";
 import useViewBox from "../../useViewBox"; // Import the hook we created earlier
 import { Menu, MenuItem } from "@mui/material";
@@ -27,6 +28,8 @@ import scaleRect from "../../util/scaleRect";
 
 import assert from "tiny-invariant";
 
+import { useDebounce } from "use-debounce";
+
 type InteractiveSVGProps = {
   children?: React.ReactNode;
 };
@@ -38,8 +41,47 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
 
   const activeGraph = graphList.find((graph) => graph.id === graphId);
 
-  const { viewBox, setViewBox, viewBoxRect, setHeight } =
-    useViewBox(`0 0 100 100`);
+  const { viewBox, setViewBox, viewBoxRect, setHeight } = useViewBox(
+    activeGraph?.viewBox || "0 0 100 100"
+  );
+
+  const graphIdRef = useRef<string | null>(graphId || null);
+
+  // When a new graph is loaded, update the viewBox but keep the
+  // aspect ratio correct
+  useEffect(() => {
+    if (graphIdRef.current === graphId) return;
+
+    const loadedViewBox = activeGraph?.viewBox || "0 0 100 100";
+    const newViewBoxRect = new DOMRect(...loadedViewBox.split(" ").map(Number));
+    const svgDimensions = svgRef.current?.getBoundingClientRect();
+
+    assert(svgDimensions, "SVG dimensions are not available");
+
+    const aspectRatio = svgDimensions?.width / svgDimensions?.height;
+    const newHeight = newViewBoxRect.width / aspectRatio;
+    const newViewBox = `${newViewBoxRect.x} ${newViewBoxRect.y} ${newViewBoxRect.width} ${newHeight}`;
+
+    setViewBox(newViewBox);
+
+    graphIdRef.current = graphId || null;
+  }, [graphId, activeGraph?.viewBox, setViewBox]);
+
+  const [debouncedViewBox] = useDebounce(viewBox, 200);
+
+  useEffect(() => {
+    if (!activeGraph) return;
+    if (!graphId) return;
+
+    if (activeGraph.viewBox === debouncedViewBox) return;
+
+    const newGraph: Graph = {
+      ...activeGraph,
+      viewBox: debouncedViewBox,
+    };
+
+    useGraphListStore.getState().updateGraph(graphId, newGraph);
+  }, [activeGraph, debouncedViewBox, graphId]);
 
   const [screenRect, setScreenRect] = useState<DOMRect | null>(null);
 

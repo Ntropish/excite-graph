@@ -17,6 +17,8 @@ import {
   useGraphListStore,
 } from "../../stores/useGraphListStore";
 
+import usePop from "../../hooks/usePop";
+
 import useResizeObserver from "use-resize-observer";
 
 import GridLines from "./GridLines";
@@ -312,23 +314,16 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
     handleClose();
   };
 
-  const popMap = useMemo<Record<string, GraphNode>>(() => {
-    if (!activeGraph) return {};
-    const candidates = { ...activeGraph.nodes };
+  const { pop, popMap } = usePop({
+    activeGraph,
+    graphId,
+  });
 
-    for (const edge of Object.values(activeGraph.edges)) {
-      if (edge.from in candidates && edge.isFlipped) {
-        delete candidates[edge.from];
-      }
-      if (edge.to in candidates && !edge.isFlipped) {
-        delete candidates[edge.to];
-      }
-    }
+  const handlePop = useCallback(() => {
+    pop();
 
-    return candidates;
-  }, [activeGraph]);
-
-  console.log(activeGraph, popMap);
+    handleClose();
+  }, [pop]);
 
   const points = useMemo(() => {
     if (!activeGraph) return null;
@@ -337,18 +332,29 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
 
     Object.entries(activeGraph.nodes).forEach(([nodeId, node]) => {
       pointList.push(
-        <circle
-          data-entity="point"
-          data-id={nodeId}
-          key={nodeId}
-          cx={node.x}
-          cy={node.y}
-          r={10}
-          fill={popMap[nodeId] ? "red" : "blue"}
-          style={{ cursor: "pointer" }}
-          stroke="black"
-          strokeWidth={2}
-        />
+        <g key={nodeId}>
+          <circle
+            data-entity="point"
+            data-id={nodeId}
+            cx={node.x}
+            cy={node.y}
+            r={10}
+            fill={"hsl(0, 0%, 50%)"}
+            style={{ cursor: "pointer" }}
+            stroke={popMap[nodeId] ? "red" : "black"}
+            strokeWidth={2}
+          />
+          <text
+            x={node.x}
+            y={node.y + 4}
+            fontSize={11}
+            fill="white"
+            textAnchor="middle"
+            pointerEvents="none" // Prevents the label from interfering with node interaction
+          >
+            {nodeId}
+          </text>
+        </g>
       );
     });
 
@@ -366,18 +372,30 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
 
       if (!startNode || !endNode) return;
 
+      const midpointX = (startNode.x + endNode.x) / 2;
+      const midpointY = (startNode.y + endNode.y) / 2;
+
       edgeList.push(
-        <line
-          key={edgeId}
-          x1={startNode.x}
-          y1={startNode.y}
-          x2={endNode.x}
-          y2={endNode.y}
-          stroke="black"
-          strokeWidth={2}
-          markerStart={!edge.isFlipped ? "url(#arrow-reverse)" : ""}
-          markerEnd={edge.isFlipped ? "url(#arrow)" : ""}
-        />
+        <g key={edgeId}>
+          <line
+            x1={startNode.x}
+            y1={startNode.y}
+            x2={endNode.x}
+            y2={endNode.y}
+            stroke="hsla(0, 0%, 0%, 0.2)"
+            strokeWidth={2}
+            markerStart={edge.isFlipped ? "url(#arrow-reverse)" : ""}
+            markerEnd={!edge.isFlipped ? "url(#arrow)" : ""}
+          />
+          <text
+            x={midpointX}
+            y={midpointY + 4}
+            fill="black"
+            textAnchor="middle"
+          >
+            {edgeId}
+          </text>
+        </g>
       );
     });
 
@@ -475,6 +493,7 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
         )}
 
         {!contextMenuTarget && <MenuItem onClick={addNode}>Add Node</MenuItem>}
+        {!contextMenuTarget && <MenuItem onClick={handlePop}>Pop</MenuItem>}
         {!contextMenuTarget && (
           <MenuItem onClick={focusContent}>Focus Content</MenuItem>
         )}

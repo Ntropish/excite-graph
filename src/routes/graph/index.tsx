@@ -6,6 +6,8 @@ import { Resizable } from "re-resizable";
 import GraphEditor from "./GraphEditor";
 
 import NodeList from "../../components/NodeList";
+import EdgeList from "../../components/EdgeList";
+import Timeline from "../../components/Timeline";
 
 const Graph = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -80,8 +82,8 @@ const Graph = () => {
         </Tabs>
         {/* Conditional rendering based on the current tab */}
         {currentTab === "nodes" && <NodeList />}
-        {/* {currentTab === "edges" && <Edges />}
-            {currentTab === "timeline" && <Timeline />} */}
+        {currentTab === "edges" && <EdgeList />}
+        {currentTab === "timeline" && <Timeline />}
       </Box>
     </Box>
   );

@@ -312,6 +312,24 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
     handleClose();
   };
 
+  const popMap = useMemo<Record<string, GraphNode>>(() => {
+    if (!activeGraph) return {};
+    const candidates = { ...activeGraph.nodes };
+
+    for (const edge of Object.values(activeGraph.edges)) {
+      if (edge.from in candidates && edge.isFlipped) {
+        delete candidates[edge.from];
+      }
+      if (edge.to in candidates && !edge.isFlipped) {
+        delete candidates[edge.to];
+      }
+    }
+
+    return candidates;
+  }, [activeGraph]);
+
+  console.log(activeGraph, popMap);
+
   const points = useMemo(() => {
     if (!activeGraph) return null;
 
@@ -326,14 +344,16 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
           cx={node.x}
           cy={node.y}
           r={10}
-          fill="red"
+          fill={popMap[nodeId] ? "red" : "blue"}
           style={{ cursor: "pointer" }}
+          stroke="black"
+          strokeWidth={2}
         />
       );
     });
 
     return pointList;
-  }, [activeGraph]);
+  }, [activeGraph, popMap]);
 
   const edges = useMemo(() => {
     if (!activeGraph) return null;
@@ -355,8 +375,8 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
           y2={endNode.y}
           stroke="black"
           strokeWidth={2}
-          markerStart={edge.isFlipped ? "url(#arrow-reverse)" : ""}
-          markerEnd={!edge.isFlipped ? "url(#arrow)" : ""}
+          markerStart={!edge.isFlipped ? "url(#arrow-reverse)" : ""}
+          markerEnd={edge.isFlipped ? "url(#arrow)" : ""}
         />
       );
     });
@@ -415,7 +435,6 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
             markerUnits="strokeWidth"
           >
             <path d="M0,0 L0,6 L9,3 z" fill="black" />
-            {/* <path d="M0,3 L9,6 L9,0 z" fill="black" /> */}
           </marker>
         </defs>
         <GridLines

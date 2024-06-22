@@ -92,22 +92,12 @@ const App = () => {
         sx={{
           display: "flex",
           flex: 1,
+          minHeight: 0,
         }}
       >
-        <Box
-          sx={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-
-            height: "100%",
-            overflow: "hidden",
-          }}
-        >
-          <Routes>
-            <Route path="/graph/:graphId" element={<Graph />} />
-          </Routes>
-        </Box>
+        <Routes>
+          <Route path="/graph/:graphId" element={<Graph />} />
+        </Routes>
       </Box>
     </Box>
   );

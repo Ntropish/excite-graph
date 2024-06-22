@@ -9,5 +9,12 @@ body {
   transition: stroke 0.2s ease;
 }
 .graph-edge:hover .visible-edge {
-  stroke: hsla(0, 0%, 0%, 0.5);
+  stroke: hsla(0, 0%, 50%, 1);
+}
+
+.graph-node circle {
+  transition: fill 0.2s ease;
+}
+.graph-node:hover circle {
+  fill: hsla(0, 0%, 50%, 1);
 }

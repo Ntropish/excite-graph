@@ -357,12 +357,17 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
 
     Object.entries(activeGraph.nodes).forEach(([nodeId, node]) => {
       pointList.push(
-        <g key={nodeId} data-entity="node" data-id={nodeId}>
+        <g
+          className="graph-node"
+          key={nodeId}
+          data-entity="node"
+          data-id={nodeId}
+        >
           <circle
             cx={node.x}
             cy={node.y}
             r={10}
-            fill={"hsl(0, 0%, 50%)"}
+            fill={"hsl(0, 0%, 30%)"}
             style={{ cursor: "pointer" }}
             stroke={popMap[nodeId] ? "red" : "black"}
             strokeWidth={2}
@@ -436,8 +441,8 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
             <circle
               cx={midpointX}
               cy={midpointY}
-              r={10}
-              fill={"hsl(0, 0%, 100%, 1)"}
+              r={8}
+              fill={"hsl(0, 0%, 100%, 0.5)"}
               style={{ cursor: "pointer" }}
               onClick={(e) => console.log(`Edge ${edgeId} clicked`, e)}
               onContextMenu={(e) => {
@@ -446,8 +451,9 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
               }}
             ></circle>
             <text
+              fontSize={8}
               x={midpointX}
-              y={midpointY + 6}
+              y={midpointY + 3}
               fill="black"
               textAnchor="middle"
             >
@@ -493,27 +499,28 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
         <defs>
           <marker
             id="arrow"
-            markerWidth="10"
-            markerHeight="10"
-            refX="12"
-            refY="3"
+            markerWidth="5"
+            markerHeight="5"
+            refX="9"
+            refY="1.5"
             orient="auto"
             markerUnits="strokeWidth"
           >
-            <path d="M0,0 L0,6 L9,3 z" fill="black" />
+            <path d="M0,0 L0,3 L4.5,1.5 z" fill="hsla(0, 0%, 50%, 1)" />
           </marker>
           <marker
             id="arrow-reverse"
-            markerWidth="10"
-            markerHeight="10"
-            refX="12"
-            refY="3"
+            markerWidth="5"
+            markerHeight="5"
+            refX="9"
+            refY="1.5"
             orient="auto-start-reverse"
             markerUnits="strokeWidth"
           >
-            <path d="M0,0 L0,6 L9,3 z" fill="black" />
+            <path d="M0,0 L0,3 L4.5,1.5 z" fill="hsla(0, 0%, 50%, 1)" />
           </marker>
         </defs>
+
         <GridLines
           width={screenRect?.width || 1}
           height={screenRect?.height || 1}

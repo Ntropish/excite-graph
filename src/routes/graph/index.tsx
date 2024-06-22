@@ -53,14 +53,15 @@ const Graph = () => {
         minHeight={isWideScreen ? "100%" : "10%"}
         maxHeight={isWideScreen ? "100%" : "90%"}
         minWidth={isWideScreen ? "10%" : "100%"}
+        maxWidth={"100%"}
         style={{
           display: "flex",
           flexDirection: "column",
           borderBottom: isWideScreen
             ? "none"
-            : `1px solid ${theme.palette.divider}`,
+            : `4px solid ${theme.palette.divider}`,
           borderRight: isWideScreen
-            ? `1px solid ${theme.palette.divider}`
+            ? `4px solid ${theme.palette.divider}`
             : "none",
         }}
       >

@@ -1,7 +1,9 @@
 import React, { useMemo } from "react";
-import { Button, Box } from "@mui/material";
+import { Button, Box, IconButton } from "@mui/material";
 import { GraphNode, useGraphListStore } from "../stores/useGraphListStore";
 import { useParams } from "react-router-dom";
+
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   MRT_ColumnDef,
   MaterialReactTable,
@@ -36,26 +38,26 @@ const NodeList = () => {
     {
       accessorKey: "id",
       header: "ID",
+      size: 60,
     },
     {
-      accessorKey: "x",
+      // truncate to three decimal places
+      accessorFn: (row) => row.x.toFixed(3),
       header: "X",
+      minSize: 100,
     },
     {
-      accessorKey: "y",
+      accessorFn: (row) => row.y.toFixed(3),
       header: "Y",
+      minSize: 100,
     },
 
     {
       header: "Actions",
       Cell: ({ row }) => (
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => removeNode(row.original.id)}
-        >
-          Delete
-        </Button>
+        <IconButton onClick={() => removeNode(row.original.id)}>
+          <DeleteIcon />
+        </IconButton>
       ),
     },
   ];
@@ -70,8 +72,10 @@ const NodeList = () => {
     enablePagination: false,
     enableStickyFooter: true,
     enableBottomToolbar: true,
-    muiTableContainerProps: {},
-    muiTablePaperProps: {},
+    enableDensityToggle: false,
+    state: {
+      density: "compact",
+    },
   });
 
   if (!graphId || !activeGraph) {

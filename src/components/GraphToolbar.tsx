@@ -151,7 +151,15 @@ const GraphToolbar = () => {
           label="Auto-Step"
         />
         <Typography>
-          Step Interval
+          <Typography
+            sx={{
+              display: "inline",
+              color: "hsla(0, 0%, 100%, 0.8)",
+              fontSize: 14,
+            }}
+          >
+            Interval
+          </Typography>
           <Typography
             sx={{
               display: "inline",

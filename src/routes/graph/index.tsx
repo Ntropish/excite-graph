@@ -33,7 +33,10 @@ const Graph = () => {
   ); // Adjust 'lg' as needed
 
   const handleChangeTab = (event: React.SyntheticEvent, newValue: string) => {
-    setSearchParams({ tab: newValue }, { replace: true });
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("tab", newValue);
+
+    setSearchParams(newParams, { replace: true });
   };
 
   const handleCloseTabs = () => {

@@ -44,7 +44,7 @@ const App = () => {
   return (
     <Box sx={{ display: "flex", height: "100vh", flexDirection: "column" }}>
       <AppBar position="static">
-        <Toolbar>
+        <Toolbar variant="dense">
           <IconButton
             edge="start"
             color="inherit"

@@ -130,11 +130,14 @@ const GraphToolbar = () => {
   };
 
   const handleCloseTabs = () => {
-    setSearchParams((old) => {
-      const newParams = new URLSearchParams(old);
-      newParams.delete("tab");
-      return newParams;
-    });
+    setSearchParams(
+      (old) => {
+        const newParams = new URLSearchParams(old);
+        newParams.delete("tab");
+        return newParams;
+      },
+      { replace: true }
+    );
   };
 
   // const handleFrameContent = () => {
@@ -242,7 +245,8 @@ const GraphToolbar = () => {
           type="number"
           value={stepInterval}
           onChange={handleStepIntervalChange}
-          step={100}
+          step={50}
+          min={100}
         />
       </Stack>
 

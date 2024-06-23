@@ -30,6 +30,8 @@ import assert from "tiny-invariant";
 
 import { useDebounce } from "use-debounce";
 
+import { useViewBoxStore } from "../../stores/useViewBoxStore";
+
 type InteractiveSVGProps = {
   children?: React.ReactNode;
 };
@@ -41,9 +43,14 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
 
   const activeGraph = graphList.find((graph) => graph.id === graphId);
 
-  const { viewBox, setViewBox, viewBoxRect, setHeight } = useViewBox(
-    activeGraph?.viewBox || "0 0 100 100"
-  );
+  // const { viewBox, setViewBox, viewBoxRect, setHeight } = useViewBox(
+  //   activeGraph?.viewBox || "0 0 100 100"
+  // );
+
+  const viewBox = useViewBoxStore((state) => state.viewBox);
+  const setViewBox = useViewBoxStore((state) => state.setViewBox);
+  const viewBoxRect = useViewBoxStore((state) => state.viewBoxRect);
+  const setHeight = useViewBoxStore((state) => state.setHeight);
 
   const graphIdRef = useRef<string | null>(graphId || null);
 

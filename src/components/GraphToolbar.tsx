@@ -16,6 +16,8 @@ import { useSearchParams, useParams } from "react-router-dom";
 import { useGraphListStore } from "../stores/useGraphListStore";
 
 import getBoundingRect from "../util/getBoundingRect";
+import { useViewBoxStore } from "../stores/useViewBoxStore";
+import scaleRect from "../util/scaleRect";
 
 const StyledInput = styled("input")({
   padding: 10,
@@ -140,6 +142,54 @@ const GraphToolbar = () => {
     );
   };
 
+  const handleFocusGraph = () => {
+    if (!activeGraph) return;
+
+    const nodeList = activeGraph?.nodes;
+
+    const pointList = Object.values(nodeList).map((node) => {
+      return new DOMPoint(node.x, node.y);
+    });
+
+    const boundingRect = getBoundingRect(pointList);
+
+    const scaledBoundingRect = scaleRect(boundingRect, 1.2);
+
+    const originalAspectRatio =
+      useViewBoxStore.getState().width / useViewBoxStore.getState().height;
+
+    let newViewBoxRect: DOMRect;
+    if (originalAspectRatio < 1) {
+      const newHeight = scaledBoundingRect.width / originalAspectRatio;
+
+      const extraHeight = newHeight - scaledBoundingRect.height;
+
+      const extraWidth = scaledBoundingRect.width - boundingRect.width;
+
+      newViewBoxRect = new DOMRect(
+        scaledBoundingRect.x - extraWidth / 2,
+        scaledBoundingRect.y - extraHeight / 2,
+        scaledBoundingRect.width,
+        newHeight
+      );
+    } else {
+      const newWidth = scaledBoundingRect.height * originalAspectRatio;
+
+      const extraWidth = newWidth - boundingRect.width;
+
+      const extraHeight = scaledBoundingRect.height - boundingRect.height;
+
+      newViewBoxRect = new DOMRect(
+        scaledBoundingRect.x - extraWidth / 2,
+        scaledBoundingRect.y - extraHeight / 2,
+        newWidth,
+        scaledBoundingRect.height
+      );
+    }
+
+    useViewBoxStore.getState().setViewBox(newViewBoxRect);
+  };
+
   // const handleFrameContent = () => {
 
   //   if (!activeGraph) return
@@ -220,7 +270,7 @@ const GraphToolbar = () => {
           }
           label="Auto-Step"
         />
-        <Typography>
+        <Box>
           <Typography
             sx={{
               display: "inline",
@@ -240,7 +290,7 @@ const GraphToolbar = () => {
             {" "}
             (ms)
           </Typography>
-        </Typography>
+        </Box>
         <StyledInput
           type="number"
           value={stepInterval}
@@ -251,6 +301,14 @@ const GraphToolbar = () => {
       </Stack>
 
       <Box sx={{ flex: "1 1 0", display: "flex" }} justifyContent={"right"}>
+        <Button
+          onClick={handleFocusGraph}
+          variant="text"
+          sx={{ m: 2 }}
+          disabled={!activeGraph}
+        >
+          Focus Graph
+        </Button>
         {!searchParams.get("tab") && (
           <Button onClick={handleOpenTabs} variant="text" sx={{ m: 2 }}>
             Lists

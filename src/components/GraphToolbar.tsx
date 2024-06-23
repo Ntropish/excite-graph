@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Stack,
   Button,
@@ -64,34 +64,40 @@ const GraphToolbar = () => {
   }, [autoStep, stepInterval, pop]);
 
   useEffect(() => {
-    // Space to step
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.code === "Space") {
-        pop();
-      }
-    };
-
-    window.addEventListener("keypress", handleKeyPress);
-
-    return () => {
-      window.removeEventListener("keypress", handleKeyPress);
-    };
-  }, [pop]);
+    if (autoStep && !searchParams.get("autoStep") === true) {
+      setSearchParams((old) => {
+        const newParams = new URLSearchParams(old);
+        newParams.set("autoStep", "true");
+        return newParams;
+      });
+    } else if (!autoStep && searchParams.get("autoStep") === "true") {
+      setSearchParams((old) => {
+        const newParams = new URLSearchParams(old);
+        newParams.delete("autoStep");
+        return newParams;
+      });
+    }
+  }, [autoStep, searchParams, setSearchParams]);
 
   const handleAutoStepChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setAutoStep(event.target.checked);
-    setSearchParams((old) => {
-      const newParams = new URLSearchParams(old);
 
-      if (event.target.checked) {
-        newParams.set("autoStep", "true");
-      } else {
-        newParams.delete("autoStep");
-      }
+    // setSearchParams((old) => {
+    //   const newParams = new URLSearchParams(old);
 
-      return newParams;
-    });
+    //   if (event.target.checked) {
+    //     newParams.set("autoStep", "true");
+    //   } else {
+    //     newParams.delete("autoStep");
+    //   }
+
+    //   return newParams;
+    // });
   };
+
+  const toggleAutoStep = useCallback(() => {
+    setAutoStep(!autoStep);
+  }, [autoStep]);
 
   const handleStepIntervalChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -123,26 +129,50 @@ const GraphToolbar = () => {
   //   });
   // };
 
-  const handleOpenTabs = () => {
+  // const handleOpenTabs = () => {
+  //   setSearchParams((old) => {
+  //     const newParams = new URLSearchParams(old);
+  //     newParams.set("tab", "nodes");
+  //     return newParams;
+  //   });
+  // };
+
+  const handleOpenTabs = useCallback(() => {
     setSearchParams((old) => {
       const newParams = new URLSearchParams(old);
       newParams.set("tab", "nodes");
       return newParams;
     });
-  };
+  }, [setSearchParams]);
 
-  const handleCloseTabs = () => {
-    setSearchParams(
-      (old) => {
-        const newParams = new URLSearchParams(old);
-        newParams.delete("tab");
-        return newParams;
-      },
-      { replace: true }
-    );
-  };
+  // const handleCloseTabs = () => {
+  //   setSearchParams(
+  //     (old) => {
+  //       const newParams = new URLSearchParams(old);
+  //       newParams.delete("tab");
+  //       return newParams;
+  //     },
+  //     { replace: true }
+  //   );
+  // };
 
-  const handleFocusGraph = () => {
+  const handleCloseTabs = useCallback(() => {
+    setSearchParams((old) => {
+      const newParams = new URLSearchParams(old);
+      newParams.delete("tab");
+      return newParams;
+    });
+  }, [setSearchParams]);
+
+  const handleToggleTabs = useCallback(() => {
+    if (searchParams.get("tab")) {
+      handleCloseTabs();
+    } else {
+      handleOpenTabs();
+    }
+  }, [handleCloseTabs, handleOpenTabs, searchParams]);
+
+  const handleFocusGraph = useCallback(() => {
     if (!activeGraph) return;
 
     const nodeList = activeGraph?.nodes;
@@ -188,7 +218,35 @@ const GraphToolbar = () => {
     }
 
     useViewBoxStore.getState().setViewBox(newViewBoxRect);
-  };
+  }, [activeGraph]);
+
+  useEffect(() => {
+    // Space to step
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.code === "KeyS") {
+        pop();
+      }
+      if (event.code === "KeyF") {
+        handleFocusGraph();
+      }
+      if (event.code === "KeyL") {
+        handleToggleTabs();
+      }
+      if (event.code === "KeyA") {
+        toggleAutoStep();
+      }
+
+      // if (event.code === "KeyC") {
+      //   handleCleanEdges();
+      // }
+    };
+
+    window.addEventListener("keypress", handleKeyPress);
+
+    return () => {
+      window.removeEventListener("keypress", handleKeyPress);
+    };
+  }, [handleFocusGraph, handleToggleTabs, pop, toggleAutoStep]);
 
   // const handleFrameContent = () => {
 
@@ -217,12 +275,6 @@ const GraphToolbar = () => {
           outline: "1px solid hsla(0, 0%, 100%, 0.6)",
         },
       }}
-      onKeyDown={(e) => {
-        e.preventDefault();
-        if (e.code === "Space") {
-          pop();
-        }
-      }}
     >
       <Box sx={{ flex: "1 1 0" }}></Box>
       <Button onClick={() => pop()}>
@@ -232,12 +284,12 @@ const GraphToolbar = () => {
             sx={{
               display: "inline",
               color: "hsla(0, 0%, 100%, 0.5)",
-              fontSize: 14,
-              mt: 0.5,
+              fontSize: 18,
+              letterSpacing: 1.5,
             }}
           >
             {" "}
-            (Spacebar)
+            [S]
           </Typography>
         </Stack>
       </Button>
@@ -264,12 +316,24 @@ const GraphToolbar = () => {
           borderRadius: "0.25rem",
         }}
       >
-        <FormControlLabel
-          control={
-            <Switch checked={autoStep} onChange={handleAutoStepChange} />
-          }
-          label="Auto-Step"
-        />
+        <Stack direction="row" alignItems="center" justifyContent="center">
+          <FormControlLabel
+            control={
+              <Switch checked={autoStep} onChange={handleAutoStepChange} />
+            }
+            label="Auto-Step"
+          />
+          <Typography
+            sx={{
+              display: "inline",
+              color: "hsla(0, 0%, 100%, 0.5)",
+              fontSize: 18,
+              letterSpacing: 1.5,
+            }}
+          >
+            [A]
+          </Typography>
+        </Stack>
         <Box>
           <Typography
             sx={{
@@ -307,16 +371,55 @@ const GraphToolbar = () => {
           sx={{ m: 2 }}
           disabled={!activeGraph}
         >
-          Focus Graph
+          <Stack>
+            <Box>Focus Graph</Box>
+
+            <Typography
+              sx={{
+                display: "inline",
+                color: "hsla(0, 0%, 100%, 0.5)",
+                fontSize: 18,
+                letterSpacing: 1.5,
+              }}
+            >
+              [F]
+            </Typography>
+          </Stack>
         </Button>
         {!searchParams.get("tab") && (
           <Button onClick={handleOpenTabs} variant="text" sx={{ m: 2 }}>
-            Lists
+            <Stack>
+              <Box>Lists</Box>
+
+              <Typography
+                sx={{
+                  display: "inline",
+                  color: "hsla(0, 0%, 100%, 0.5)",
+                  fontSize: 18,
+                  letterSpacing: 1.5,
+                }}
+              >
+                [L]
+              </Typography>
+            </Stack>
           </Button>
         )}
         {searchParams.get("tab") && (
           <Button onClick={handleCloseTabs} variant="text" sx={{ m: 2 }}>
-            Close Lists
+            <Stack>
+              <Box>Close Lists</Box>
+
+              <Typography
+                sx={{
+                  display: "inline",
+                  color: "hsla(0, 0%, 100%, 0.5)",
+                  fontSize: 18,
+                  letterSpacing: 1.5,
+                }}
+              >
+                [L]
+              </Typography>
+            </Stack>
           </Button>
         )}
       </Box>

@@ -22,6 +22,7 @@ export type GraphEdge = z.infer<typeof graphEdgeSchema>;
 
 export const graphSchema = z.object({
   id: z.string(),
+  title: z.string(),
   nodes: z.record(graphNodeSchema),
   edges: z.record(graphEdgeSchema),
   viewBox: z.string(),

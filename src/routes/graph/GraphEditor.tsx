@@ -8,7 +8,7 @@ import React, {
   useEffect,
 } from "react";
 import useViewBox from "../../useViewBox"; // Import the hook we created earlier
-import { Menu, MenuItem } from "@mui/material";
+import { Menu, MenuItem, TextField, Box } from "@mui/material";
 
 import { useParams } from "react-router-dom";
 import {
@@ -638,6 +638,19 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
 
   const connectionEnd = mousePosition;
 
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!graphId) {
+      return;
+    }
+    if (!activeGraph) {
+      return;
+    }
+    useGraphListStore.getState().updateGraph(graphId, {
+      ...activeGraph,
+      title: event.target.value,
+    });
+  };
+
   return (
     <>
       <svg
@@ -743,6 +756,18 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
 
         {!contextMenuTarget && <MenuItem onClick={addNode}>Add Node</MenuItem>}
       </Menu>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "1rem",
+          right: "1.5rem",
+        }}
+      >
+        <TextField
+          value={activeGraph?.title || ""}
+          onChange={handleTitleChange}
+        />
+      </Box>
     </>
   );
 };

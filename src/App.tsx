@@ -6,6 +6,7 @@ import {
   Toolbar,
   AppBar,
   Typography,
+  TextField,
 } from "@mui/material";
 
 import { useTheme } from "@mui/material";
@@ -21,50 +22,43 @@ import DrawerHeader from "./components/DrawerHeader";
 import { Route, Routes } from "react-router-dom";
 import Graph from "./routes/graph";
 
+import { useParams } from "react-router-dom";
+
+import { useGraphListStore } from "./stores/useGraphListStore";
+
 const drawerWidth = 240;
 
 const App = () => {
   const [leftDrawerOpen, setLeftDrawerOpen] = React.useState(false);
-  const [rightDrawerOpen, setRightDrawerOpen] = React.useState(false);
 
-  const theme = useTheme();
+  const { graphId } = useParams<{ graphId: string }>();
+
+  const graphList = useGraphListStore((state) => state.graphs);
+
+  const activeGraph = graphList.find((graph) => graph.id === graphId);
 
   const toggleLeftDrawer = (open) => () => {
     setLeftDrawerOpen(open);
   };
 
-  const toggleRightDrawer = (open) => () => {
-    setRightDrawerOpen(open);
-  };
-
-  const handleRightDrawerClose = () => {
-    setRightDrawerOpen(false);
-  };
-
   return (
     <Box sx={{ display: "flex", height: "100vh", flexDirection: "column" }}>
-      <AppBar position="static">
-        <Toolbar variant="dense">
-          <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            onClick={toggleLeftDrawer(true)}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography
-            variant="h6"
-            sx={{
-              flexGrow: 1,
-              fontWeight: 200,
-              color: "hsla(0, 0%, 100%, 0.7)",
-            }}
-          >
-            Excitable Graph
-          </Typography>
-        </Toolbar>
-      </AppBar>
+      <Box
+        sx={{
+          position: "fixed",
+          top: "1rem",
+          left: "1.5rem",
+        }}
+      >
+        <IconButton
+          edge="start"
+          color="inherit"
+          aria-label="menu"
+          onClick={toggleLeftDrawer(true)}
+        >
+          <MenuIcon />
+        </IconButton>
+      </Box>
       <Drawer
         anchor="left"
         open={leftDrawerOpen}
@@ -72,29 +66,7 @@ const App = () => {
       >
         <GraphList />
       </Drawer>
-      <Drawer
-        sx={{
-          "& .MuiDrawer-paper": {
-            width: drawerWidth,
-            boxSizing: "border-box",
-          },
-        }}
-        variant="persistent"
-        anchor="right"
-        open={rightDrawerOpen}
-        onClose={toggleRightDrawer(false)}
-      >
-        <DrawerHeader>
-          <IconButton onClick={handleRightDrawerClose}>
-            {theme.direction === "rtl" ? (
-              <ChevronLeftIcon />
-            ) : (
-              <ChevronRightIcon />
-            )}
-          </IconButton>
-        </DrawerHeader>
-        <GraphInspector />
-      </Drawer>
+
       <Box
         sx={{
           display: "flex",

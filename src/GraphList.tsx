@@ -29,6 +29,7 @@ function GraphList() {
       edges: {},
       viewBox: "0 0 100 100",
       lastId: 0,
+      title: "",
     });
   };
 
@@ -36,6 +37,10 @@ function GraphList() {
     {
       accessorKey: "id",
       header: "Graph ID",
+    },
+    {
+      accessorKey: "title",
+      header: "Title",
     },
     {
       accessorKey: "nodes",

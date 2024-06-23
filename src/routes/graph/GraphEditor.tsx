@@ -506,17 +506,7 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
     handleClose();
   };
 
-  const focusContent = () => {
-    handleClose();
-  };
-
   const { pop, popMap } = usePop();
-
-  const handlePop = useCallback(() => {
-    pop();
-
-    handleClose();
-  }, [pop]);
 
   const points = useMemo(() => {
     if (!activeGraph) return null;
@@ -745,10 +735,6 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
         )}
 
         {!contextMenuTarget && <MenuItem onClick={addNode}>Add Node</MenuItem>}
-        {!contextMenuTarget && <MenuItem onClick={handlePop}>Pop</MenuItem>}
-        {!contextMenuTarget && (
-          <MenuItem onClick={focusContent}>Focus Content</MenuItem>
-        )}
       </Menu>
     </>
   );

@@ -11,7 +11,11 @@ import {
 import { styled } from "@mui/system";
 import usePop from "../hooks/usePop";
 
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useParams } from "react-router-dom";
+
+import { useGraphListStore } from "../stores/useGraphListStore";
+
+import getBoundingRect from "../util/getBoundingRect";
 
 const StyledInput = styled("input")({
   padding: 10,
@@ -28,6 +32,12 @@ const StyledInput = styled("input")({
 });
 
 const GraphToolbar = () => {
+  const { graphId } = useParams<{ graphId: string }>();
+
+  const graphList = useGraphListStore((state) => state.graphs);
+
+  const activeGraph = graphList.find((graph) => graph.id === graphId);
+
   const [searchParams, setSearchParams] = useSearchParams();
   const { pop } = usePop();
   const [autoStep, setAutoStep] = useState(
@@ -126,6 +136,22 @@ const GraphToolbar = () => {
       return newParams;
     });
   };
+
+  // const handleFrameContent = () => {
+
+  //   if (!activeGraph) return
+
+  //   const nodeList = activeGraph?.nodes
+
+  //   const pointList = Object.values(nodeList).map((node) => {
+  //     return new DOMPoint(node.x, node.y)
+  //   }
+
+  //   )
+
+  //   const boundingRect = getBoundingRect(pointList)
+
+  // }
 
   return (
     <Stack

@@ -1,6 +1,3 @@
-import React from "react";
-import { Box, Typography } from "@mui/material";
-
 import { Button, IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
@@ -15,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 
 function GraphList() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const graphs = useGraphListStore((state) => state.graphs);
   const removeGraph = useGraphListStore((state) => state.removeGraph);
@@ -83,7 +80,7 @@ function GraphList() {
       </Button>
     ),
     muiTableBodyRowProps: ({ row }) => ({
-      onClick: (event) => {
+      onClick: () => {
         const query = new URLSearchParams(searchParams);
         navigate(`/graph/${row.original.id}?${query.toString()}`);
       },

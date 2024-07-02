@@ -41,7 +41,7 @@ interface GraphListState {
 
 export const useGraphListStore = create<GraphListState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       graphMap: {},
       graphs: [],
       addGraph: (graph) => {

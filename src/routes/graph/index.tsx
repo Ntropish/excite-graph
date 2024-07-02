@@ -1,15 +1,4 @@
-import {
-  Box,
-  Tab,
-  Tabs,
-  Stack,
-  Grid,
-  useMediaQuery,
-  useTheme,
-  IconButton,
-} from "@mui/material";
-
-import CloseIcon from "@mui/icons-material/Close";
+import { Box, Tab, Tabs, Stack, useMediaQuery, useTheme } from "@mui/material";
 
 import { useSearchParams } from "react-router-dom";
 
@@ -19,7 +8,6 @@ import GraphEditor from "./GraphEditor";
 
 import NodeList from "../../components/NodeList";
 import EdgeList from "../../components/EdgeList";
-import Timeline from "../../components/Timeline";
 import GraphToolbar from "../../components/GraphToolbar";
 
 const Graph = () => {
@@ -32,15 +20,11 @@ const Graph = () => {
     "(min-width:1200px) and (min-aspect-ratio: 16/9)"
   ); // Adjust 'lg' as needed
 
-  const handleChangeTab = (event: React.SyntheticEvent, newValue: string) => {
+  const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
     const newParams = new URLSearchParams(searchParams);
     newParams.set("tab", newValue);
 
     setSearchParams(newParams, { replace: true });
-  };
-
-  const handleCloseTabs = () => {
-    setSearchParams(undefined, { replace: true });
   };
 
   const meat = (

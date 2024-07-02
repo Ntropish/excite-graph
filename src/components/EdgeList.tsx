@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { Button, Box, IconButton, Typography } from "@mui/material";
+import { useMemo } from "react";
+import { Box, IconButton, Typography } from "@mui/material";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import { GraphEdge, useGraphListStore } from "../stores/useGraphListStore";

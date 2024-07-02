@@ -7,7 +7,6 @@ import React, {
   useMemo,
   useEffect,
 } from "react";
-import useViewBox from "../../useViewBox"; // Import the hook we created earlier
 import { Menu, MenuItem, TextField, Box } from "@mui/material";
 
 import { useParams } from "react-router-dom";
@@ -131,7 +130,7 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
   const onWheel = (event: WheelEvent<SVGSVGElement>) => {
     if (!svgRef.current) return;
 
-    const { deltaX, deltaY, clientX, clientY } = event;
+    const { deltaY, clientX, clientY } = event;
     const scale = Math.pow(1.0015, deltaY);
 
     const rect = viewBoxRect;
@@ -564,9 +563,6 @@ const GraphEditor: React.FC<InteractiveSVGProps> = ({ children }) => {
       const endNode = activeGraph.nodes[edge.to];
 
       if (!startNode || !endNode) return;
-
-      const midpointX = (startNode.x + endNode.x) / 2;
-      const midpointY = (startNode.y + endNode.y) / 2;
 
       edgeList.push(
         <g

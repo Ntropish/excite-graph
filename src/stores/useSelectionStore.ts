@@ -18,7 +18,7 @@ interface SelectionState {
 
 export const useSelectionStore = create<SelectionState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       activeGraph: null,
       setActiveGraph: (id) => set({ activeGraph: id }),
       selectedNodes: [],

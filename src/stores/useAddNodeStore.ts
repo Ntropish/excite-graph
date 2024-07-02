@@ -1,7 +1,5 @@
 import { create } from "zustand";
 
-import { useGraphListStore } from "./useGraphListStore";
-
 interface AddNodeState {
   active: boolean;
   location: DOMPoint | null;

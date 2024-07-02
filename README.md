@@ -5,3 +5,6 @@ For each state of the graph some nodes might have the potential to "pop". These 
 Whenever a node pops, all of its connected edges are flipped. This causes it to lose its potential until all of those edges are flipped back.
 
 Graphs evolve through continuous stepping and have vastly different behaviors depending on their design.
+
+https://github.com/Ntropish/excite-graph/assets/7933153/2b8f7f55-309f-49e3-9f17-de6c9a86ee06
+

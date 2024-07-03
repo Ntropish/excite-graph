@@ -181,7 +181,7 @@ const GraphToolbar = () => {
       return new DOMPoint(node.x, node.y);
     });
 
-    const boundingRect = getBoundingRect(pointList);
+    const boundingRect = getBoundingRect(pointList, 10);
 
     const scaledBoundingRect = scaleRect(boundingRect, 1.2);
 

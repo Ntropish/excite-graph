@@ -6,6 +6,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import GraphList from "./GraphList";
 import { Route, Routes } from "react-router-dom";
 import Graph from "./routes/graph";
+import LandingPage from "./routes/LandingPage";
 
 const App = () => {
   const [leftDrawerOpen, setLeftDrawerOpen] = React.useState(false);
@@ -49,6 +50,7 @@ const App = () => {
         }}
       >
         <Routes>
+          <Route path="/" element={<LandingPage></LandingPage>} />
           <Route path="/graph/:graphId" element={<Graph />} />
         </Routes>
       </Box>

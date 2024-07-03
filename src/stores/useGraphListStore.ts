@@ -43,7 +43,27 @@ export const useGraphListStore = create<GraphListState>()(
   persist(
     (set) => ({
       graphMap: {},
-      graphs: [],
+      graphs: [
+        // default graph
+        {
+          id: "graph-1",
+          title: "Graph 1",
+          nodes: {
+            "node-1": { id: "node-1", x: 10, y: 10 },
+            "node-2": { id: "node-2", x: 20, y: 20 },
+          },
+          edges: {
+            "edge-3": {
+              id: "edge-1",
+              isFlipped: false,
+              from: "node-1",
+              to: "node-2",
+            },
+          },
+          viewBox: "0 0 100 100",
+          lastId: 3,
+        },
+      ],
       addGraph: (graph) => {
         set((state) => {
           const newGraphMap = {

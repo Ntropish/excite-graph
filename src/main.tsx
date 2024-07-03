@@ -19,7 +19,7 @@ const darkTheme = createTheme({
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <BrowserRouter basename="/excite-graph">
+    <BrowserRouter>
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
 
